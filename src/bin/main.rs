@@ -8,10 +8,9 @@ use tangleproof::tangle::send_transaction;
 async fn main() -> Result<()> {
     let jsonproof = io::read_from_file("proof.json")?;
     // println!("{:?}", r);
-    match jsonproof {
-        Some(p) => println!("{}", p.is_valid().await?),
-        _ => (),
-    };
+    if let Some(p) = jsonproof{
+        println!("{}", p.is_valid().await?)
+    }
     let (id, msg) = send_transaction("Test").await?;
     println!("{:?}", id);
     // println!("{:?}", msg);
