@@ -6,6 +6,8 @@ pub enum Error {
     DecodeJSON(#[from] serde_json::Error),
     #[error("IO Error")]
     IOError(#[from] std::io::Error),
+    #[error("Iota_client Error")]
+    IotaClientError(#[from] iota::client::Error),
     #[error("Proof has no message")]
     NoMessage,
     #[error("Proof has no UTXO")]

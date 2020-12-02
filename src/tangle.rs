@@ -1,22 +1,18 @@
 use crate::error::Result;
 use bee_common::packable::Packable;
-use iota::signing::{
-    binary::{BIP32Path, Ed25519PrivateKey},
-    seed::Seed,
-    Signer,
-};
+use iota::signing::{binary::Ed25519PrivateKey, Signer};
 use iota::Indexation;
 use iota::{
-    hex_to_address, hex_to_message_id, hex_to_transaction_id, Address, Client, Ed25519Address,
-    Ed25519Signature, Message, MessageId, MessageJson, Output, Payload,
+    Client, Ed25519Address, Ed25519Signature, Message, MessageId, Output, Payload,
     SignatureLockedSingleOutput, SignatureUnlock, TransactionBuilder, TransactionEssenceBuilder,
-    UTXOInput, UnlockBlock,
+    TransactionId, UTXOInput, UnlockBlock,
 };
 use std::convert::From;
 use std::num::NonZeroU64;
+use std::str::FromStr;
 
 pub async fn send() -> Result<(String, String)> {
-    let client = Client::new()
+    let client = Client::builder()
         .nodes(&vec!["http://localhost:14265"])
         .unwrap()
         .build()
@@ -44,7 +40,7 @@ pub async fn send() -> Result<(String, String)> {
 
     let r = client
         .get_message()
-        .data(&hex_to_message_id(fetched_messages[0]).unwrap())
+        .data(&fetched_messages[0])
         .await
         .unwrap();
 
@@ -60,17 +56,17 @@ pub async fn send() -> Result<(String, String)> {
 }
 
 pub async fn fetch(_message_id: &Output) -> Result<String> {
-    let r = Client::new()
+    let r = Client::builder()
         .node("http://localhost:14265")
         .unwrap()
         .build()
         .unwrap()
         .get_output(
             &UTXOInput::new(
-                hex_to_transaction_id(
+                TransactionId::from_str(
                     "0000000000000000000000000000000000000000000000000000000000000000",
                 )
-                .unwrap(),
+                .expect("bee message error, can't convert string to transactionid"),
                 0,
             )
             .unwrap(),
@@ -83,7 +79,7 @@ pub async fn fetch(_message_id: &Output) -> Result<String> {
 }
 
 pub async fn send_transaction(data: &str) -> Result<(MessageId, Message)> {
-    let client = Client::new()
+    let client = Client::builder()
         .node("http://localhost:14265")
         .unwrap()
         .build()
@@ -106,6 +102,7 @@ pub async fn send_transaction(data: &str) -> Result<(MessageId, Message)> {
         .outputs(&output_address.clone().into())
         .await
         .unwrap();
+    println!("inputsinputs{:?}", inputs);
 
     // let address = client
     //     .get_unspent_address(&Seed::from_ed25519_bytes(&[0u8; 32]).unwrap())
@@ -127,6 +124,7 @@ pub async fn send_transaction(data: &str) -> Result<(MessageId, Message)> {
         .finish()
         .unwrap();
     let mut serialized_essence = vec![];
+    // essence.
     essence.pack(&mut serialized_essence).unwrap();
 
     let signature = Box::new(private_key.sign(&serialized_essence).to_bytes());
@@ -144,6 +142,7 @@ pub async fn send_transaction(data: &str) -> Result<(MessageId, Message)> {
     println!("essence: {:#?}", transaction.essence());
     let tips = client.get_tips().await.unwrap();
     let message = Message::builder()
+        .with_network_id(0)
         .with_parent1(tips.0)
         .with_parent2(tips.1)
         .with_payload(Payload::Transaction(Box::new(transaction)))
