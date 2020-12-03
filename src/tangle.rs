@@ -3,13 +3,12 @@ use bee_common::packable::Packable;
 use iota::signing::{binary::Ed25519PrivateKey, Signer};
 use iota::Indexation;
 use iota::{
-    Client, Ed25519Address, Ed25519Signature, Message, MessageId, Output, Payload,
+    Client, Ed25519Address, Ed25519Signature, Message, MessageId, Output, OutputId, Payload,
     SignatureLockedSingleOutput, SignatureUnlock, TransactionBuilder, TransactionEssenceBuilder,
-    TransactionId, UTXOInput, UnlockBlock,
+    UTXOInput, UnlockBlock,
 };
 use std::convert::From;
 use std::num::NonZeroU64;
-use std::str::FromStr;
 
 pub async fn send() -> Result<(String, String)> {
     let client = Client::builder()
@@ -55,27 +54,27 @@ pub async fn send() -> Result<(String, String)> {
     Ok((utxo, serde_json::to_string(&message)?))
 }
 
-pub async fn fetch(_message_id: &Output) -> Result<String> {
+pub async fn is_output_spent(output_id: &OutputId) -> Result<bool> {
     let r = Client::builder()
         .node("http://localhost:14265")
         .unwrap()
         .build()
         .unwrap()
         .get_output(
+            // &UTXOInput{0:message_id}
             &UTXOInput::new(
-                TransactionId::from_str(
-                    "0000000000000000000000000000000000000000000000000000000000000000",
-                )
-                .expect("bee message error, can't convert string to transactionid"),
+                *output_id.transaction_id(),
+                // TransactionId::from_str(
+                //     "0000000000000000000000000000000000000000000000000000000000000000",
+                // )
+                // .expect("bee message error, can't convert string to transactionid"),
                 0,
             )
-            .unwrap(),
+            .expect("Couldn't convert output"),
         )
         .await
         .unwrap();
-
-    println!("output spent: {:#?}", r.is_spent);
-    Ok("not done".into())
+    Ok(r.is_spent)
 }
 
 pub async fn send_transaction(data: &str) -> Result<(MessageId, Message)> {
@@ -97,6 +96,7 @@ pub async fn send_transaction(data: &str) -> Result<(MessageId, Message)> {
     )
     .unwrap();
     let output_address = Ed25519Address::new(output_address);
+    println!("bech32 address: {}", output_address.to_bech32());
     let inputs = client
         .get_address()
         .outputs(&output_address.clone().into())

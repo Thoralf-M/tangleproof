@@ -73,7 +73,7 @@ checksum = "cdcf67bb7ba7797a081cd19009948ab533af7c355d5caf1d08c777582d351e9c"
 [[package]]
 name = "bee-common"
 version = "0.1.1-alpha"
-source = "git+https://github.com/iotaledger/bee.git?branch=chrysalis-pt-2#1ce3b9a68845dad8d84518a74fa5bc1625673d36"
+source = "git+https://github.com/iotaledger/bee.git?branch=chrysalis-pt-2#aa959ad44b1f55ae5c05b2638b35bd1dba418c59"
 dependencies = [
  "async-trait",
  "bee-storage",
@@ -112,7 +112,7 @@ dependencies = [
 [[package]]
 name = "bee-message"
 version = "0.1.0-alpha"
-source = "git+https://github.com/iotaledger/bee.git?branch=chrysalis-pt-2#1ce3b9a68845dad8d84518a74fa5bc1625673d36"
+source = "git+https://github.com/iotaledger/bee.git?branch=chrysalis-pt-2#aa959ad44b1f55ae5c05b2638b35bd1dba418c59"
 dependencies = [
  "bech32",
  "bee-common",
@@ -159,7 +159,7 @@ dependencies = [
 [[package]]
 name = "bee-storage"
 version = "0.1.0-alpha"
-source = "git+https://github.com/iotaledger/bee.git?branch=chrysalis-pt-2#1ce3b9a68845dad8d84518a74fa5bc1625673d36"
+source = "git+https://github.com/iotaledger/bee.git?branch=chrysalis-pt-2#aa959ad44b1f55ae5c05b2638b35bd1dba418c59"
 dependencies = [
  "async-trait",
  "futures 0.3.8",
@@ -817,7 +817,7 @@ dependencies = [
 [[package]]
 name = "iota-client"
 version = "0.5.0-alpha.3"
-source = "git+https://github.com/iotaledger/iota.rs?branch=dev#3ba8f225e8e609754e6256fcabcdedffed2d57d9"
+source = "git+https://github.com/iotaledger/iota.rs?branch=dev#4d60aa2be815225142e6fbe69800d7ad7fe40f9c"
 dependencies = [
  "bee-common",
  "bee-crypto",
@@ -837,7 +837,7 @@ dependencies = [
 [[package]]
 name = "iota-core"
 version = "0.2.0-alpha.3"
-source = "git+https://github.com/iotaledger/iota.rs?branch=dev#3ba8f225e8e609754e6256fcabcdedffed2d57d9"
+source = "git+https://github.com/iotaledger/iota.rs?branch=dev#4d60aa2be815225142e6fbe69800d7ad7fe40f9c"
 dependencies = [
  "bee-message",
  "bee-signing-ext",
@@ -1363,9 +1363,9 @@ dependencies = [
 
 [[package]]
 name = "serde_json"
-version = "1.0.59"
+version = "1.0.60"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "dcac07dbffa1c65e7f816ab9eba78eb142c6d44410f4eeba1e26e4f5dfa56b95"
+checksum = "1500e84d27fe482ed1dc791a56eddc2f230046a040fa908c08bda1d9fb615779"
 dependencies = [
  "itoa",
  "ryu",
