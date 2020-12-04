@@ -8,6 +8,8 @@ pub enum Error {
     IOError(#[from] std::io::Error),
     #[error("Iota_client Error")]
     IotaClientError(#[from] iota::client::Error),
+    #[error("Hex Error")]
+    HexError(#[from] hex::FromHexError),
     #[error("Proof has no message")]
     NoMessage,
     #[error("Proof has no UTXO")]

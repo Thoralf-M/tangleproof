@@ -22,13 +22,6 @@ impl InclusionProof {
     pub fn new(output: OutputId, message: Message) -> Self {
         InclusionProof {
             latest_output_id: output,
-            //     message_id: "a",
-            //     output_id: OutputId {
-            //         transaction_id: "af",
-            //         index: 0,
-            //     },
-            //     output: SignatureLockedSingleOutput::new("test", NonZeroU64::new(1).unwrap()),
-            // },
             messages: vec![message],
         }
     }
@@ -41,8 +34,6 @@ impl InclusionProof {
         }
     }
     pub fn from_json(json_proof: InclusionProofJson) -> Result<Self> {
-        // let json_proof:  = serde_json::from_str(&proof)?;
-        // println!("{:?}",json_proof);
         Ok(Self {
             latest_output_id: OutputId::from_str(&json_proof.latest_output_id)
                 .expect("Invalid output id in proof object"),
@@ -53,7 +44,7 @@ impl InclusionProof {
                 .collect(),
         })
     }
-    pub async fn is_valid(&self) -> Result<bool> {
-        is_valid(&self).await
+    pub async fn is_valid(&self, node_url: &str) -> Result<bool> {
+        is_valid(&self, node_url).await
     }
 }

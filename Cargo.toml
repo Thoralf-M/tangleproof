@@ -11,7 +11,6 @@ iota-core = {git = "https://github.com/iotaledger/iota.rs", branch = "dev"}
 # iota-core = {git = "https://github.com/Thoralf-M/iota.rs", branch = "dev"}
 # iota-core = {path = "../iota.rs/iota-core/"}
 bee-signing-ext = { git = "https://github.com/wusyong/bee-p.git", branch = "sign-ext" }
-# bee-common-ext = { git = "https://github.com/Alex6323/bee-p.git", branch = "chrysalis-pt-2"}
 bee-common = { git = "https://github.com/iotaledger/bee.git", branch = "chrysalis-pt-2" }
 bee-message = { git = "https://github.com/iotaledger/bee.git", branch = "chrysalis-pt-2"}
 tokio = { version = "0.2.22", features = ["full"] }
