@@ -30,11 +30,7 @@ async fn main() -> Result<()> {
             }
             _ => {
                 // Create a new proof
-                let proof = InclusionProof::new(
-                    OutputId::new(tx.id(), 0).expect("Can't get output id"),
-                    msg,
-                );
-                proof
+                InclusionProof::new(OutputId::new(tx.id(), 0).expect("Can't get output id"), msg)
             }
         };
         io::write_to_file(proof_name, endproof)?;

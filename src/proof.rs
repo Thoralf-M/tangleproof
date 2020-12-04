@@ -27,7 +27,7 @@ impl InclusionProof {
     }
     pub fn to_json(&self) -> InclusionProofJson {
         let output_json = self.latest_output_id.to_string();
-        let json_messages = self.messages.iter().map(|m| MessageJson::from(m)).collect();
+        let json_messages = self.messages.iter().map(MessageJson::from).collect();
         InclusionProofJson {
             latest_output_id: output_json,
             messages: json_messages,

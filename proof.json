@@ -1,5 +1,5 @@
 {
-  "latest_output_id": "7212195208d2a88257cf0ff0a7166bb40790dc633f3c6c28852da7ed234400180000",
+  "latest_output_id": "ac1619f1ccb628e9156092fe11aab87f3355005e17b8982e23a95c4fc646bb0f0000",
   "messages": [
     {
       "nonce": "0",
@@ -209,6 +209,92 @@
             "signature": {
               "publicKey": "f7868ab6bb55800b77b8b74191ad8285a9bf428ace579d541fda47661803ff44",
               "signature": "cb968decb629574218c33e1f9dfab916a9071a00e7a5383b7116cf89c22e504c20f6ab9b8a6d7fecd46635a0c28ec57f344f3d8aee192adb0c60e70266ede90d",
+              "type": 1
+            },
+            "type": 0
+          }
+        ]
+      }
+    },
+    {
+      "nonce": "0",
+      "parent1MessageId": "62b45397607da9b68bb3dadfde11c8b6519e00888dc9c3ad8310f386981e2d7c",
+      "parent2MessageId": "5026776b9673ffba48d575c004128d2bd6f346b7258d0a03b2240098fddf39bf",
+      "payload": {
+        "essence": {
+          "inputs": [
+            {
+              "transactionId": "7212195208d2a88257cf0ff0a7166bb40790dc633f3c6c28852da7ed23440018",
+              "transactionOutputIndex": 0,
+              "type": 0
+            }
+          ],
+          "outputs": [
+            {
+              "address": {
+                "address": "6920b176f613ec7be59e68fc68f597eb3393af80f74c7c3db78198147d5f1f92",
+                "type": 1
+              },
+              "amount": 2779530283277761,
+              "type": 0
+            }
+          ],
+          "payload": {
+            "data": "546573746e6163687269636874",
+            "index": "InclusionProof",
+            "type": 2
+          },
+          "type": 0
+        },
+        "type": 0,
+        "unlockBlocks": [
+          {
+            "signature": {
+              "publicKey": "f7868ab6bb55800b77b8b74191ad8285a9bf428ace579d541fda47661803ff44",
+              "signature": "411d66738f3c2632e0b62dcd398af5aabb6c2126e44ca8aa036078c7d1cf5e852f26d4371a6bd826445c59a565358e79e33b7076322011d65761d1976d8a230b",
+              "type": 1
+            },
+            "type": 0
+          }
+        ]
+      }
+    },
+    {
+      "nonce": "0",
+      "parent1MessageId": "e052eae9d885947f2bc96c7193eaf59aceedbfcda5aae3a4d1175fb0855c8462",
+      "parent2MessageId": "99696b3187d608a80c63bcde5737aa8e84ef7c89bb6057d7096e7014ea1be1c0",
+      "payload": {
+        "essence": {
+          "inputs": [
+            {
+              "transactionId": "8b8f8ea4e6b0c97a6161f255afb4b1907e72030571977f3915b7150b48220092",
+              "transactionOutputIndex": 0,
+              "type": 0
+            }
+          ],
+          "outputs": [
+            {
+              "address": {
+                "address": "6920b176f613ec7be59e68fc68f597eb3393af80f74c7c3db78198147d5f1f92",
+                "type": 1
+              },
+              "amount": 2779530283277761,
+              "type": 0
+            }
+          ],
+          "payload": {
+            "data": "546573746e6163687269636874",
+            "index": "InclusionProof",
+            "type": 2
+          },
+          "type": 0
+        },
+        "type": 0,
+        "unlockBlocks": [
+          {
+            "signature": {
+              "publicKey": "f7868ab6bb55800b77b8b74191ad8285a9bf428ace579d541fda47661803ff44",
+              "signature": "b3bd8f509e2028748a8336596f9495e6f8f3431248f30ca47982beeff263cf2b033d84de0c51cdd88028ceb0a65465ff1d9b2b1cdd6d7409721f3dcfb6d26f06",
               "type": 1
             },
             "type": 0

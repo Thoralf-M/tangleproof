@@ -29,15 +29,12 @@ pub async fn is_valid(proof: &InclusionProof, node_url: &str) -> Result<bool> {
             } else {
                 return Err(crate::error::Error::InvalidMessageChain);
             }
-        } else {
-            if let Payload::Transaction(tx) = message.payload().as_ref().unwrap() {
-                if OutputId::new(tx.id(), 0).expect("Can't get output id") != proof.latest_output_id
-                {
-                    return Err(crate::error::Error::InvalidLatestUTXO);
-                }
-            } else {
-                return Err(crate::error::Error::NoTransactionPayload);
+        } else if let Payload::Transaction(tx) = message.payload().as_ref().unwrap() {
+            if OutputId::new(tx.id(), 0).expect("Can't get output id") != proof.latest_output_id {
+                return Err(crate::error::Error::InvalidLatestUTXO);
             }
+        } else {
+            return Err(crate::error::Error::NoTransactionPayload);
         }
     }
     let spent_status = is_output_spent(&proof.latest_output_id, node_url).await?;
