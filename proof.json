@@ -1,5 +1,5 @@
 {
-  "latest_output_id": "ac1619f1ccb628e9156092fe11aab87f3355005e17b8982e23a95c4fc646bb0f0000",
+  "latest_output_id": "41acdd4d3b17abb7b84f1a2bde22b6efb9d639fe1db689c313316c3d8c5a872c0000",
   "messages": [
     {
       "nonce": "0",
@@ -295,6 +295,178 @@
             "signature": {
               "publicKey": "f7868ab6bb55800b77b8b74191ad8285a9bf428ace579d541fda47661803ff44",
               "signature": "b3bd8f509e2028748a8336596f9495e6f8f3431248f30ca47982beeff263cf2b033d84de0c51cdd88028ceb0a65465ff1d9b2b1cdd6d7409721f3dcfb6d26f06",
+              "type": 1
+            },
+            "type": 0
+          }
+        ]
+      }
+    },
+    {
+      "nonce": "0",
+      "parent1MessageId": "bbd4662da2519a7e5a0ebf4ab33aa17a652bb22def796162ab123f30c180a581",
+      "parent2MessageId": "cc580abc212a5a8a9b08714fdcda4b7696fe81085218caba3dc625ae87cc228b",
+      "payload": {
+        "essence": {
+          "inputs": [
+            {
+              "transactionId": "ac1619f1ccb628e9156092fe11aab87f3355005e17b8982e23a95c4fc646bb0f",
+              "transactionOutputIndex": 0,
+              "type": 0
+            }
+          ],
+          "outputs": [
+            {
+              "address": {
+                "address": "6920b176f613ec7be59e68fc68f597eb3393af80f74c7c3db78198147d5f1f92",
+                "type": 1
+              },
+              "amount": 2779530283277761,
+              "type": 0
+            }
+          ],
+          "payload": {
+            "data": "546573746e6163687269636874",
+            "index": "InclusionProof",
+            "type": 2
+          },
+          "type": 0
+        },
+        "type": 0,
+        "unlockBlocks": [
+          {
+            "signature": {
+              "publicKey": "f7868ab6bb55800b77b8b74191ad8285a9bf428ace579d541fda47661803ff44",
+              "signature": "8fc436aa58d7b26151c8e7aaa35e6f0b6d57275a42949307a845f2350bdea13bfab81708c342a5cf59c5681ebb719cb530868acf8278565ab13d2a4062925f0b",
+              "type": 1
+            },
+            "type": 0
+          }
+        ]
+      }
+    },
+    {
+      "nonce": "0",
+      "parent1MessageId": "9d19e0575b1cf26b440b42a5203e22393e53bcab834e47f75a4615f6b4b26bc1",
+      "parent2MessageId": "65379c20a95cdd45f6bc33fabce490bd6a4589f41944d5a4fa398933fe7f2a7d",
+      "payload": {
+        "essence": {
+          "inputs": [
+            {
+              "transactionId": "aa73181272649da8892c29e7c0b0d90c21979b053ca43223f052febb961e5eb5",
+              "transactionOutputIndex": 0,
+              "type": 0
+            }
+          ],
+          "outputs": [
+            {
+              "address": {
+                "address": "6920b176f613ec7be59e68fc68f597eb3393af80f74c7c3db78198147d5f1f92",
+                "type": 1
+              },
+              "amount": 2779530283277761,
+              "type": 0
+            }
+          ],
+          "payload": {
+            "data": "546573746e6163687269636874",
+            "index": "InclusionProof",
+            "type": 2
+          },
+          "type": 0
+        },
+        "type": 0,
+        "unlockBlocks": [
+          {
+            "signature": {
+              "publicKey": "f7868ab6bb55800b77b8b74191ad8285a9bf428ace579d541fda47661803ff44",
+              "signature": "60496ce96519bd25919be7e40a044b7b9a55c471cf8f7b5fd968c17b71e9370281dec547d4a76a8b228582ffd41fb4369f4ae63cfbbfd32cb03e369c3ed2da0a",
+              "type": 1
+            },
+            "type": 0
+          }
+        ]
+      }
+    },
+    {
+      "nonce": "0",
+      "parent1MessageId": "5c85966c0a93727c4da4ceea613e8b7547c96d4159a13c2496b4088b4f07e686",
+      "parent2MessageId": "9002697802a12dc5e7ab0088640c803b4465b96b596d3f2d11488bf634e65839",
+      "payload": {
+        "essence": {
+          "inputs": [
+            {
+              "transactionId": "57a2483f2be184a0e50cd19e038a29fb8f42bfcfd4a0af4930e0fc2e5fd7b1f6",
+              "transactionOutputIndex": 0,
+              "type": 0
+            }
+          ],
+          "outputs": [
+            {
+              "address": {
+                "address": "6920b176f613ec7be59e68fc68f597eb3393af80f74c7c3db78198147d5f1f92",
+                "type": 1
+              },
+              "amount": 2779530283277761,
+              "type": 0
+            }
+          ],
+          "payload": {
+            "data": "546573746e6163687269636874",
+            "index": "InclusionProof",
+            "type": 2
+          },
+          "type": 0
+        },
+        "type": 0,
+        "unlockBlocks": [
+          {
+            "signature": {
+              "publicKey": "f7868ab6bb55800b77b8b74191ad8285a9bf428ace579d541fda47661803ff44",
+              "signature": "dacc33f8b653b917ce03f33ac299ca003140acc0a60d90896d98c69329b222ad0ad61f7b96187f6499946786a7167a3d23463ff2f2a19c25720c4a832216b20e",
+              "type": 1
+            },
+            "type": 0
+          }
+        ]
+      }
+    },
+    {
+      "nonce": "0",
+      "parent1MessageId": "bf22cfa72919130850d7e6a5f6691e41bb0000cf1d4def923f9d0159c9e0a2cf",
+      "parent2MessageId": "6b7d8e2b3e112f65c0691d8275b8528eb49ef798ff0fee8bcc21ca3bb44b6035",
+      "payload": {
+        "essence": {
+          "inputs": [
+            {
+              "transactionId": "2c9e12f954af50f6a22498f18fa514992b5a1a9acab8eddb285f1e670bcf4a7d",
+              "transactionOutputIndex": 0,
+              "type": 0
+            }
+          ],
+          "outputs": [
+            {
+              "address": {
+                "address": "6920b176f613ec7be59e68fc68f597eb3393af80f74c7c3db78198147d5f1f92",
+                "type": 1
+              },
+              "amount": 2779530283277761,
+              "type": 0
+            }
+          ],
+          "payload": {
+            "data": "546573746e6163687269636874",
+            "index": "InclusionProof",
+            "type": 2
+          },
+          "type": 0
+        },
+        "type": 0,
+        "unlockBlocks": [
+          {
+            "signature": {
+              "publicKey": "f7868ab6bb55800b77b8b74191ad8285a9bf428ace579d541fda47661803ff44",
+              "signature": "031e8d07c413dd533c914e9d10541c3602d2f9000361b91f7c32f4ccce0e8612b8197d76554e8d0d0472984996873e76be164311762a95538803fbeda46dc904",
               "type": 1
             },
             "type": 0

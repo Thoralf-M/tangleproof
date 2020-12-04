@@ -1,9 +1,7 @@
-use iota::OutputId;
-use iota::Payload;
+use std::time::Duration;
 use tangleproof::error::Result;
-use tangleproof::io;
 use tangleproof::proof::InclusionProof;
-use tangleproof::tangle::send_transaction;
+use tokio::time;
 
 #[tokio::main]
 async fn main() -> Result<()> {
@@ -11,29 +9,13 @@ async fn main() -> Result<()> {
     let proof_name = "proof.json";
     let message = "Testnachricht";
     let indexation_tag = "InclusionProof";
-    match io::read_from_file(proof_name)? {
-        Some(proof) => {
-            println!("Proof is valid: {}", proof.is_valid(node_url).await?)
-        }
-        _ => println!("No proof available"),
-    }
-    let (id, msg) = send_transaction(indexation_tag, message, 2779530283277761, node_url).await?;
-    println!("{:?}", id);
-    if let Payload::Transaction(tx) = msg.payload().as_ref().expect("No payload") {
-        println!("txid{:?}", tx.id());
-        let endproof = match io::read_from_file(proof_name)? {
-            Some(mut proof) => {
-                // Update existing proof
-                proof.latest_output_id = OutputId::new(tx.id(), 0).expect("Can't get output id");
-                proof.messages.push(msg.clone());
-                proof
-            }
-            _ => {
-                // Create a new proof
-                InclusionProof::new(OutputId::new(tx.id(), 0).expect("Can't get output id"), msg)
-            }
-        };
-        io::write_to_file(proof_name, endproof)?;
-    }
+    let amount = 2779530283277761;
+    let (msgid, txid, proof) =
+        InclusionProof::send_data(indexation_tag, message, amount, node_url, proof_name).await?;
+    println!("Message sent: {}", msgid.to_string());
+    println!("Transaction id in message: {}", txid.to_string());
+    // Wait so the transaction can get confirmed so the output is available
+    time::delay_for(Duration::from_secs(15)).await;
+    println!("Proof is valid: {}", proof.is_valid(node_url).await?);
     Ok(())
 }

@@ -25,9 +25,9 @@ pub async fn send_transaction(
     indexation_tag: &str,
     data: &str,
     amount: u64,
-    url: &str,
+    node_url: &str,
 ) -> Result<(MessageId, Message)> {
-    let client = Client::builder().node(url)?.build()?;
+    let client = Client::builder().node(node_url)?.build()?;
     let private_key = Ed25519PrivateKey::from_bytes(&hex::decode(
         "256a818b2aac458941f7274985a410e57fb750f3a3a67969ece5bd9ae7eef5b2",
     )?)

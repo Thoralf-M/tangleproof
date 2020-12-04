@@ -20,4 +20,6 @@ pub enum Error {
     InvalidLatestUTXO,
     #[error("Message has no transaction Payload")]
     NoTransactionPayload,
+    #[error("File has no valid proof")]
+    InvalidProofFile,
 }
