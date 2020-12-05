@@ -817,7 +817,7 @@ dependencies = [
 [[package]]
 name = "iota-client"
 version = "0.5.0-alpha.3"
-source = "git+https://github.com/iotaledger/iota.rs?branch=dev#4d60aa2be815225142e6fbe69800d7ad7fe40f9c"
+source = "git+https://github.com/Thoralf-M/iota.rs?branch=dev#92542fa8e01dd59bb0ab8322093b52bb31667a55"
 dependencies = [
  "bee-common",
  "bee-crypto",
@@ -837,7 +837,7 @@ dependencies = [
 [[package]]
 name = "iota-core"
 version = "0.2.0-alpha.3"
-source = "git+https://github.com/iotaledger/iota.rs?branch=dev#4d60aa2be815225142e6fbe69800d7ad7fe40f9c"
+source = "git+https://github.com/Thoralf-M/iota.rs?branch=dev#92542fa8e01dd59bb0ab8322093b52bb31667a55"
 dependencies = [
  "bee-message",
  "bee-signing-ext",

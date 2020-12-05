@@ -37,9 +37,12 @@ impl InclusionProof {
         data: &str,
         amount: u64,
         node_url: &str,
+        seed: &str,
+        bip32path: &str,
         proof_name: &str,
     ) -> Result<(MessageId, TransactionId, Self)> {
-        let (messageid, msg) = send_transaction(indexation_tag, data, amount, node_url).await?;
+        let (messageid, msg) =
+            send_transaction(indexation_tag, data, amount, node_url, seed, bip32path).await?;
 
         let tx = match msg.payload().as_ref().expect("No payload").clone() {
             Payload::Transaction(tx) => tx,
