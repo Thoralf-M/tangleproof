@@ -1,5 +1,5 @@
 {
-  "latest_output_id": "7530cd09b5625f2faaff27649a3da17eb2f922213363cf5648039ff842ab791d0000",
+  "latest_output_id": "0d74b271e2dbef7c34515aed502129637db28daae347cee258b8be93b95132cb0000",
   "messages": [
     {
       "nonce": "0",
@@ -209,6 +209,49 @@
             "signature": {
               "publicKey": "8d121dcdddb0f0b349a55a0ff8275de3068bd5c165b4226518a7d4e6c30fc5e5",
               "signature": "cff462a95770c2014f5281edef159f759ba175b9097ece251dbfcf495f802464d26135f813331740cf937166ea2db443babc9b8c8f50abb85d9be1e08f91220e",
+              "type": 1
+            },
+            "type": 0
+          }
+        ]
+      }
+    },
+    {
+      "nonce": "62387",
+      "parent1MessageId": "6a128be0952db5d1f4f98371601bba6760cb45a1e33e897f8bb08c7817f46c63",
+      "parent2MessageId": "2d84e18f794ab567df930075d9486270c88f8610a98926fde8b09b55a39e9d78",
+      "payload": {
+        "essence": {
+          "inputs": [
+            {
+              "transactionId": "7530cd09b5625f2faaff27649a3da17eb2f922213363cf5648039ff842ab791d",
+              "transactionOutputIndex": 0,
+              "type": 0
+            }
+          ],
+          "outputs": [
+            {
+              "address": {
+                "address": "0e382311cb34a44dcc11eced751f8e6b1a7f4960615561b0eb4bbad321fbbcd0",
+                "type": 1
+              },
+              "amount": 2779530283277761,
+              "type": 0
+            }
+          ],
+          "payload": {
+            "data": "546573746e6163687269636874",
+            "index": "InclusionProof",
+            "type": 2
+          },
+          "type": 0
+        },
+        "type": 0,
+        "unlockBlocks": [
+          {
+            "signature": {
+              "publicKey": "8d121dcdddb0f0b349a55a0ff8275de3068bd5c165b4226518a7d4e6c30fc5e5",
+              "signature": "1d41dbca5e7e7c65cc8363d5c26f2b624f43190dfef9980c5480d82322d36aad33a90501576a965691f4e3c59b7109b1f1aeac3e155d7670bf70ed5b063eb80b",
               "type": 1
             },
             "type": 0
