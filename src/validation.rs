@@ -5,6 +5,7 @@ use iota::prelude::Input;
 use iota::prelude::OutputId;
 use iota::prelude::UTXOInput;
 use iota::Payload;
+use std::collections::HashSet;
 
 pub async fn is_valid(proof: &InclusionProof, node_url: &str) -> Result<bool> {
     if proof.messages.is_empty() {
@@ -18,11 +19,18 @@ pub async fn is_valid(proof: &InclusionProof, node_url: &str) -> Result<bool> {
                 if let Payload::Transaction(tx1) =
                     &proof.messages[index + 1].payload().as_ref().unwrap()
                 {
-                    if tx1.essence().inputs()[0]
-                        != Input::from(UTXOInput::from(
-                            OutputId::new(tx.id(), 0).expect("Can't get output id"),
-                        ))
-                    {
+                    let outputs = tx.essence().outputs();
+                    let mut output_ids = Vec::new();
+                    let inputs = tx1.essence().inputs();
+                    for i in 0..outputs.len() {
+                        output_ids.push(Input::UTXO(UTXOInput::from(
+                            OutputId::new(tx.id(), i as u16).expect("Can't get output id"),
+                        )));
+                    }
+                    let a: HashSet<_> = output_ids.into_iter().collect();
+                    let b: HashSet<_> = inputs.iter().cloned().collect();
+                    let intersection: Vec<&Input> = a.intersection(&b).collect();
+                    if intersection.is_empty() {
                         return Err(crate::error::Error::InvalidMessageChain);
                     }
                 }
