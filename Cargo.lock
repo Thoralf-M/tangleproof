@@ -79,7 +79,7 @@ checksum = "cdcf67bb7ba7797a081cd19009948ab533af7c355d5caf1d08c777582d351e9c"
 [[package]]
 name = "bee-common"
 version = "0.1.1-alpha"
-source = "git+https://github.com/iotaledger/bee.git?branch=chrysalis-pt-2#aa959ad44b1f55ae5c05b2638b35bd1dba418c59"
+source = "git+https://github.com/iotaledger/bee.git?branch=chrysalis-pt-2#30e718917fd68320d74dc61124322bfa17556780"
 dependencies = [
  "async-trait",
  "bee-storage",
@@ -118,7 +118,7 @@ dependencies = [
 [[package]]
 name = "bee-message"
 version = "0.1.0-alpha"
-source = "git+https://github.com/iotaledger/bee.git?branch=chrysalis-pt-2#aa959ad44b1f55ae5c05b2638b35bd1dba418c59"
+source = "git+https://github.com/iotaledger/bee.git?branch=chrysalis-pt-2#30e718917fd68320d74dc61124322bfa17556780"
 dependencies = [
  "bech32",
  "bee-common",
@@ -165,7 +165,7 @@ dependencies = [
 [[package]]
 name = "bee-storage"
 version = "0.1.0-alpha"
-source = "git+https://github.com/iotaledger/bee.git?branch=chrysalis-pt-2#aa959ad44b1f55ae5c05b2638b35bd1dba418c59"
+source = "git+https://github.com/iotaledger/bee.git?branch=chrysalis-pt-2#30e718917fd68320d74dc61124322bfa17556780"
 dependencies = [
  "async-trait",
  "futures 0.3.8",
@@ -839,7 +839,7 @@ dependencies = [
 [[package]]
 name = "iota-client"
 version = "0.5.0-alpha.3"
-source = "git+https://github.com/Thoralf-M/iota.rs?branch=dev#92542fa8e01dd59bb0ab8322093b52bb31667a55"
+source = "git+https://github.com/Thoralf-M/iota.rs?branch=dev#e9f4d1fbd72e9d92f98fcf0c6cadf91196905ea2"
 dependencies = [
  "bee-common",
  "bee-crypto",
@@ -854,12 +854,13 @@ dependencies = [
  "reqwest",
  "serde 1.0.118",
  "serde_json",
+ "tokio",
 ]
 
 [[package]]
 name = "iota-core"
 version = "0.2.0-alpha.3"
-source = "git+https://github.com/Thoralf-M/iota.rs?branch=dev#92542fa8e01dd59bb0ab8322093b52bb31667a55"
+source = "git+https://github.com/Thoralf-M/iota.rs?branch=dev#e9f4d1fbd72e9d92f98fcf0c6cadf91196905ea2"
 dependencies = [
  "bee-message",
  "bee-signing-ext",
@@ -933,9 +934,9 @@ dependencies = [
 
 [[package]]
 name = "libc"
-version = "0.2.80"
+version = "0.2.81"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4d58d1b70b004888f764dfbf6a26a3b0342a1632d33968e4a179d8011c760614"
+checksum = "1482821306169ec4d07f6aca392a4681f66c75c9918aa49641a2595db64053cb"
 
 [[package]]
 name = "linked-hash-map"
@@ -1578,9 +1579,9 @@ checksum = "343f3f510c2915908f155e94f17220b19ccfacf2a64a2a5d8004f2c3e311e7fd"
 
 [[package]]
 name = "syn"
-version = "1.0.53"
+version = "1.0.54"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8833e20724c24de12bbaba5ad230ea61c3eafb05b881c7c9d3cfe8638b187e68"
+checksum = "9a2af957a63d6bd42255c359c93d9bfdb97076bd3b820897ce55ffbfbf107f44"
 dependencies = [
  "proc-macro2",
  "quote",

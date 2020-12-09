@@ -7,6 +7,7 @@ use iota::prelude::UTXOInput;
 use iota::Payload;
 use std::collections::HashSet;
 
+/// Function to validate the structure of the proof and check if the latest output is unspent
 pub async fn is_valid(proof: &InclusionProof, node_url: &str) -> Result<bool> {
     if proof.messages.is_empty() {
         return Err(crate::error::Error::NoMessage);

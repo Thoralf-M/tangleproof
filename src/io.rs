@@ -5,6 +5,7 @@ use std::io::prelude::*;
 use std::io::BufWriter;
 use std::path::Path;
 
+/// Function to read a proof from a file
 pub fn read_from_file<P: AsRef<Path>>(path: P) -> Result<Option<InclusionProof>> {
     let mut file = match File::open(&path) {
         Ok(file) => file,
@@ -17,6 +18,7 @@ pub fn read_from_file<P: AsRef<Path>>(path: P) -> Result<Option<InclusionProof>>
     Ok(Some(proof))
 }
 
+/// Function to write a proof to a file
 pub fn write_to_file<P: AsRef<Path>>(path: P, proof: InclusionProof) -> Result<()> {
     let proof_json = proof.to_json();
     let jsonvalue = serde_json::to_value(&proof_json)?;

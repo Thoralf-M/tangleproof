@@ -3,6 +3,7 @@ use iota::Indexation;
 use iota::{BIP32Path, Client, Message, MessageId, OutputId, Seed, UTXOInput};
 use std::num::NonZeroU64;
 
+/// Function to get the spent status of an outputid
 pub async fn is_output_spent(output_id: &OutputId, url: &str) -> Result<bool> {
     let r = Client::builder()
         .node(url)?
@@ -14,6 +15,7 @@ pub async fn is_output_spent(output_id: &OutputId, url: &str) -> Result<bool> {
     Ok(r.is_spent)
 }
 
+/// Function to send a transaction with an indexation payload
 pub async fn send_transaction(
     indexation_tag: &str,
     data: &str,

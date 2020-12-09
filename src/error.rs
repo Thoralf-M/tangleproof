@@ -1,5 +1,6 @@
 pub type Result<T, E = Error> = anyhow::Result<T, E>;
 
+/// Error type of the tangleproof lib
 #[derive(Debug, thiserror::Error)]
 pub enum Error {
     #[error("serde_json Error: {0}")]
