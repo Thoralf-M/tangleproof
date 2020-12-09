@@ -11,4 +11,5 @@ For a proof to be valid one output of a transaction always needs to be used as i
 The output is not be available before the transaction is confirmed, so it can take a few seconds before a new proof is valid.
 
 Con: You need IOTA token as long as you want to prove the existence of your transaction(s)
+
 Pro: You only need to store your own transactions, no need to constantly listen to new transactions in the Tangle
