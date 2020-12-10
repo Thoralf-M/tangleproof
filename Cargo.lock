@@ -79,7 +79,7 @@ checksum = "cdcf67bb7ba7797a081cd19009948ab533af7c355d5caf1d08c777582d351e9c"
 [[package]]
 name = "bee-common"
 version = "0.1.1-alpha"
-source = "git+https://github.com/iotaledger/bee.git?branch=chrysalis-pt-2#30e718917fd68320d74dc61124322bfa17556780"
+source = "git+https://github.com/iotaledger/bee.git?branch=chrysalis-pt-2#67690a49009b9749827a3324229a286ab0c1c4d4"
 dependencies = [
  "async-trait",
  "bee-storage",
@@ -118,7 +118,7 @@ dependencies = [
 [[package]]
 name = "bee-message"
 version = "0.1.0-alpha"
-source = "git+https://github.com/iotaledger/bee.git?branch=chrysalis-pt-2#30e718917fd68320d74dc61124322bfa17556780"
+source = "git+https://github.com/iotaledger/bee.git?branch=chrysalis-pt-2#67690a49009b9749827a3324229a286ab0c1c4d4"
 dependencies = [
  "bech32",
  "bee-common",
@@ -165,7 +165,7 @@ dependencies = [
 [[package]]
 name = "bee-storage"
 version = "0.1.0-alpha"
-source = "git+https://github.com/iotaledger/bee.git?branch=chrysalis-pt-2#30e718917fd68320d74dc61124322bfa17556780"
+source = "git+https://github.com/iotaledger/bee.git?branch=chrysalis-pt-2#67690a49009b9749827a3324229a286ab0c1c4d4"
 dependencies = [
  "async-trait",
  "futures 0.3.8",
@@ -839,7 +839,7 @@ dependencies = [
 [[package]]
 name = "iota-client"
 version = "0.5.0-alpha.3"
-source = "git+https://github.com/Thoralf-M/iota.rs?branch=dev#e9f4d1fbd72e9d92f98fcf0c6cadf91196905ea2"
+source = "git+https://github.com/Thoralf-M/iota.rs?branch=dev#b8a004927f4a185b1b4ae8b99f5276d5d905ac13"
 dependencies = [
  "bee-common",
  "bee-crypto",
@@ -860,7 +860,7 @@ dependencies = [
 [[package]]
 name = "iota-core"
 version = "0.2.0-alpha.3"
-source = "git+https://github.com/Thoralf-M/iota.rs?branch=dev#e9f4d1fbd72e9d92f98fcf0c6cadf91196905ea2"
+source = "git+https://github.com/Thoralf-M/iota.rs?branch=dev#b8a004927f4a185b1b4ae8b99f5276d5d905ac13"
 dependencies = [
  "bee-message",
  "bee-signing-ext",
@@ -1058,9 +1058,9 @@ dependencies = [
 
 [[package]]
 name = "net2"
-version = "0.2.36"
+version = "0.2.37"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d7cf75f38f16cb05ea017784dc6dbfd354f76c223dba37701734c4f5a9337d02"
+checksum = "391630d12b68002ae1e25e8f974306474966550ad82dac6886fb8910c19568ae"
 dependencies = [
  "cfg-if 0.1.10",
  "libc",
@@ -1680,9 +1680,9 @@ checksum = "cda74da7e1a664f795bb1f8a87ec406fb89a02522cf6e50620d016add6dbbf5c"
 
 [[package]]
 name = "tokio"
-version = "0.2.23"
+version = "0.2.24"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a6d7ad61edd59bfcc7e80dababf0f4aed2e6d5e0ba1659356ae889752dfc12ff"
+checksum = "099837d3464c16a808060bb3f02263b412f6fafcb5d01c533d309985fbeebe48"
 dependencies = [
  "bytes",
  "fnv",
@@ -2061,9 +2061,9 @@ dependencies = [
 
 [[package]]
 name = "zeroize"
-version = "1.1.1"
+version = "1.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "05f33972566adbd2d3588b0491eb94b98b43695c4ef897903470ede4f3f5a28a"
+checksum = "81a974bcdd357f0dca4d41677db03436324d45a4c9ed2d0b873a5a360ce41c36"
 dependencies = [
  "zeroize_derive",
 ]

@@ -1,7 +1,7 @@
 {
     "node_url": "http://192.168.178.22:14265",
     "proof_name": "proof.json",
-    "amount": 2779530283277761,
+    "amount": 1000,
     "seed": "256a818b2aac458941f7274985a410e57fb750f3a3a67969ece5bd9ae7eef5b2",
     "bip32path": "m/0'/0'"
 }
