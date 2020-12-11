@@ -22,6 +22,7 @@ async fn main() -> Result<()> {
     let amount = settings.get_int("amount").unwrap() as u64;
     let seed = settings.get_str("seed").unwrap();
     let bip32path = settings.get_str("bip32path").unwrap();
+    let local_pow = settings.get_bool("local_pow").unwrap();
 
     println!("Your address is {}", get_address(&seed, &bip32path)?);
 
@@ -38,6 +39,7 @@ async fn main() -> Result<()> {
         &message,
         amount,
         &node_url,
+        local_pow,
         &seed,
         &bip32path,
         &proof_name,

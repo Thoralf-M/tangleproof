@@ -21,10 +21,14 @@ pub async fn send_transaction(
     data: &str,
     amount: u64,
     node_url: &str,
+    local_pow: bool,
     seed: &str,
     bip32path: &str,
 ) -> Result<(MessageId, Message)> {
-    let client = Client::builder().node(node_url)?.build()?;
+    let client = Client::builder()
+        .node(node_url)?
+        .local_pow(local_pow)
+        .build()?;
     let seed = Seed::from_ed25519_bytes(&hex::decode(seed)?).unwrap();
 
     let path = BIP32Path::from_str(bip32path).unwrap();

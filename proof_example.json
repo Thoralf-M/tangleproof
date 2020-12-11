@@ -1,15 +1,16 @@
 {
-  "latest_output_id": "318d5a1f04524d5818ff724d2923d10bdc292da4b6dc2dac7cbd9c8e19d709980000",
+  "latest_output_id": "c382860f5478da951a168470a693dad325e86247bd36cdb7d6d4fae928c1d4350000",
   "messages": [
     {
-      "nonce": "17568",
-      "parent1MessageId": "98a535d227c6eaf73757a3401a450fc3280e58658a08f8db4a33a04a5e70e8fb",
-      "parent2MessageId": "eb3c993d95396a66fc6ec702f9066f801d4b90790db1c70bbd6ef4d79bca258f",
+      "networkId": "6530425480034647824",
+      "nonce": "9223372036855462323",
+      "parent1MessageId": "d061812ebe3a22aac9fd2b8640c4fb5ffbc2c03943b7af318103b5b01f74f599",
+      "parent2MessageId": "424f54b308c4b359cc4f1c4086407980873a68c8d1630430ff31747e88e30e17",
       "payload": {
         "essence": {
           "inputs": [
             {
-              "transactionId": "eecd3786e54ebb143cd35124da6ffc30cb7b613c8c13a304636db210bdc6093e",
+              "transactionId": "37263c4dc67bb691e1e631d8b8024392b0ad105be25d7393bc78a8ef14e3a20d",
               "transactionOutputIndex": 0,
               "type": 0
             }
@@ -20,13 +21,13 @@
                 "address": "0e382311cb34a44dcc11eced751f8e6b1a7f4960615561b0eb4bbad321fbbcd0",
                 "type": 1
               },
-              "amount": 2779530283277761,
+              "amount": 1000,
               "type": 0
             }
           ],
           "payload": {
-            "data": "746573740a",
-            "index": "test\n",
+            "data": "730a",
+            "index": "c\n",
             "type": 2
           },
           "type": 0
@@ -36,50 +37,7 @@
           {
             "signature": {
               "publicKey": "8d121dcdddb0f0b349a55a0ff8275de3068bd5c165b4226518a7d4e6c30fc5e5",
-              "signature": "e6b51f393972d13d9666b5b6714c05a901e8a377d3da94397372d3f04d5506e47f14c6617a87d11dc13024939d7d5b18dabb6dddcafd487c3330e83a556f6c02",
-              "type": 1
-            },
-            "type": 0
-          }
-        ]
-      }
-    },
-    {
-      "nonce": "20693",
-      "parent1MessageId": "baffbc86aa844748e3b0fdb126e76a9c7bf6731dbf6db1a27dc37227e266e1a0",
-      "parent2MessageId": "0a79fb87427167ba41b9c0ee6393a91ad333417d5516630da398e397e17ad9eb",
-      "payload": {
-        "essence": {
-          "inputs": [
-            {
-              "transactionId": "1ab829cc0c3ea1e2d7b3ec2c1c04e10542e7db04181e3382babf3606d76949a0",
-              "transactionOutputIndex": 0,
-              "type": 0
-            }
-          ],
-          "outputs": [
-            {
-              "address": {
-                "address": "0e382311cb34a44dcc11eced751f8e6b1a7f4960615561b0eb4bbad321fbbcd0",
-                "type": 1
-              },
-              "amount": 2779530283277761,
-              "type": 0
-            }
-          ],
-          "payload": {
-            "data": "6d6573736167650a",
-            "index": "tag\n",
-            "type": 2
-          },
-          "type": 0
-        },
-        "type": 0,
-        "unlockBlocks": [
-          {
-            "signature": {
-              "publicKey": "8d121dcdddb0f0b349a55a0ff8275de3068bd5c165b4226518a7d4e6c30fc5e5",
-              "signature": "a4075a57b971668bb2165d3d9e1bde543291b58532cc2f58368148dc79da12dfc36678d506340974ca5558411dce85b13a247ea20a646d8bf9a1d8dee0f56f08",
+              "signature": "ad8dfdbfe46a7fe114a201fd6a80a62f888710f5a1d7027bf06a6072b286d542adb30aad464b6965121f4b4629f9aa942399183ee5dfc84c5004fb61d3123a09",
               "type": 1
             },
             "type": 0
