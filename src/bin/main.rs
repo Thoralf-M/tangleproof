@@ -34,6 +34,7 @@ async fn main() -> Result<()> {
     io::stdin().read_line(&mut message).unwrap();
 
     println!("Sending transaction...");
+
     let (msgid, txid, proof) = InclusionProof::send_data(
         &indexation_tag,
         &message,
@@ -48,7 +49,7 @@ async fn main() -> Result<()> {
     println!("Message sent: {}", msgid.to_string());
     println!("Transaction id in message: {}", txid.to_string());
     // Wait so the transaction can get confirmed so the output is available
-    time::delay_for(Duration::from_secs(15)).await;
+    time::delay_for(Duration::from_secs(40)).await;
     // let proof = InclusionProof::from_file(&proof_name).await?;
     println!("Proof is valid: {}", proof.is_valid(&node_url).await?);
     Ok(())

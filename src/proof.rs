@@ -42,10 +42,15 @@ impl InclusionProof {
         bip32path: &str,
         proof_name: &str,
     ) -> Result<(MessageId, TransactionId, Self)> {
+        let mut input: Option<OutputId> = None;
+        if let Ok(proof) = InclusionProof::from_file(&proof_name).await {
+            input = Some(proof.latest_output_id);
+        }
         let (messageid, msg) = send_transaction(
             indexation_tag,
             data,
             amount,
+            input,
             node_url,
             local_pow,
             seed,
