@@ -1,5 +1,5 @@
 {
-    "node_url": "http://api.lb-0.testnet.chrysalis2.com",
+    "node_url": "http://localhost:14265",
     "proof_name": "proof.json",
     "amount": 1000,
     "seed": "256a818b2aac458941f7274985a410e57fb750f3a3a67969ece5bd9ae7eef5b2",

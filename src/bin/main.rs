@@ -25,6 +25,7 @@ async fn main() -> Result<()> {
     let local_pow = settings.get_bool("local_pow").unwrap();
 
     println!("Your address is {}", get_address(&seed, &bip32path)?);
+    println!("Send {}i to it before you continue", amount);
 
     println!("Enter indexation tag");
     let mut indexation_tag = String::new();

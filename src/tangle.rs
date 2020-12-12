@@ -119,14 +119,13 @@ pub async fn send_transaction(
 
     let tips = client.get_tips().await.unwrap();
     let message = MessageBuilder::<ClientMiner>::new()
-        .with_network_id(0)
+        .with_network_id(6530425480034647824)
         .with_parent1(tips.0)
         .with_parent2(tips.1)
         .with_payload(Payload::Transaction(Box::new(transaction)))
         .with_nonce_provider(client.get_pow_provider(), 4000f64)
         .finish()
         .unwrap();
-
     let message_id = client.post_message(&message).await?;
 
     Ok((message_id, message))
