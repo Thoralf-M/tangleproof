@@ -1,7 +1,6 @@
 use config::Config;
 use config::File;
 use iota::client::Client;
-use iota::BIP32Path;
 use iota::Seed;
 use std::io;
 use std::path::Path;
@@ -21,10 +20,9 @@ async fn main() -> Result<()> {
     let proof_name = settings.get_str("proof_name").unwrap();
     let amount = settings.get_int("amount").unwrap() as u64;
     let seed = settings.get_str("seed").unwrap();
-    let bip32path = settings.get_str("bip32path").unwrap();
     let local_pow = settings.get_bool("local_pow").unwrap();
 
-    println!("Your address is {}", get_address(&seed, &bip32path)?);
+    println!("Your address is {}", get_address(&seed)?);
     println!("Send {}i to it before you continue", amount);
 
     println!("Enter indexation tag");
@@ -43,7 +41,6 @@ async fn main() -> Result<()> {
         &node_url,
         local_pow,
         &seed,
-        &bip32path,
         &proof_name,
     )
     .await?;
@@ -56,10 +53,13 @@ async fn main() -> Result<()> {
     Ok(())
 }
 
-fn get_address(seed: &str, bip32path: &str) -> Result<String> {
+fn get_address(seed: &str) -> Result<String> {
     let client = Client::builder().node("http:localhost")?.build()?;
     let seed = Seed::from_ed25519_bytes(&hex::decode(seed)?).unwrap();
-    let path = BIP32Path::from_str(&bip32path).unwrap();
-    let address = client.find_addresses(&seed).path(&path).range(0..1).get()?;
-    Ok(address[0].to_bech32())
+    let address = client
+        .find_addresses(&seed)
+        .account_index(0)
+        .range(0..1)
+        .get()?;
+    Ok(address[0].0.to_bech32())
 }

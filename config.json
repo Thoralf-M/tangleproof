@@ -1,8 +1,7 @@
 {
-    "node_url": "http://localhost:14265",
+    "node_url": "http://api.lb-0.testnet.chrysalis2.com",
     "proof_name": "proof.json",
     "amount": 1000,
-    "seed": "256a818b2aac458941f7274985a410e57fb750f3a3a67969ece5bd9ae7eef5b2",
-    "bip32path": "m/0'/0'",
+    "seed": "3ff69866a124d8cf168e5b928eb603bacc2d241f1a9d70af5c10f2dd34137896",
     "local_pow": false
 }

@@ -39,7 +39,6 @@ impl InclusionProof {
         node_url: &str,
         local_pow: bool,
         seed: &str,
-        bip32path: &str,
         proof_name: &str,
     ) -> Result<(MessageId, TransactionId, Self)> {
         let mut input: Option<OutputId> = None;
@@ -54,7 +53,6 @@ impl InclusionProof {
             node_url,
             local_pow,
             seed,
-            bip32path,
         )
         .await?;
 

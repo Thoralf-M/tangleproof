@@ -1,5 +1,4 @@
 use crate::error::{Error, Result};
-// use bee_common::packable::Packable;
 use iota::common::packable::Packable;
 use iota::signing::{binary::Ed25519PrivateKey, Seed, Signer};
 use iota::{
@@ -29,7 +28,6 @@ pub async fn send_transaction(
     node_url: &str,
     local_pow: bool,
     seed: &str,
-    bip32path: &str,
 ) -> Result<(MessageId, Message)> {
     let client = Client::builder()
         .node(node_url)?
@@ -37,11 +35,13 @@ pub async fn send_transaction(
         .build()?;
     let seed = Seed::from_ed25519_bytes(&hex::decode(seed)?).unwrap();
 
-    let mut path = BIP32Path::from_str(bip32path).unwrap();
+    let address = client
+        .find_addresses(&seed)
+        .account_index(0)
+        .range(0..1)
+        .get()?;
 
-    let address = client.find_addresses(&seed).path(&path).range(0..1).get()?;
-
-    let output_address = address[0].clone();
+    let (output_address, _) = address[0].clone();
     let input = match input {
         Some(input) => {
             let utxo_input = UTXOInput::from(input);
@@ -98,9 +98,11 @@ pub async fn send_transaction(
     match &seed {
         Seed::Ed25519(s) => {
             const HARDEND: u32 = 1 << 31;
+            let mut path = BIP32Path::from_str("m/44'/4218'/0'").unwrap();
+            path.push(false as u32 + HARDEND);
             path.push(0 as u32 + HARDEND);
             let private_key = Ed25519PrivateKey::generate_from_seed(&s, &path)
-                .map_err(|_| Error::InvalidParameter("seed inputs".to_string()))?;
+                .map_err(|_| Error::InvalidParameter("Invalid seed or bip path".to_string()))?;
             let public_key = private_key.generate_public_key().to_bytes();
             // The block should sign the entire transaction essence part of the transaction payload
             let signature = Box::new(private_key.sign(&serialized_essence).to_bytes());
