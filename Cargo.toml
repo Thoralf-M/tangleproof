@@ -7,8 +7,8 @@ edition = "2018"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-# iota-core = {git = "https://github.com/iotaledger/iota.rs", branch = "dev"}
-iota-core = {git = "https://github.com/Thoralf-M/iota.rs", branch = "dev"}
+iota-core = {git = "https://github.com/iotaledger/iota.rs", branch = "dev"}
+# iota-core = {git = "https://github.com/Thoralf-M/iota.rs", branch = "dev"}
 # iota-core = {path = "../iota.rs/iota-core/"}
 hex = "0.4"
 serde = { version = "1.0", features = ["derive"] }

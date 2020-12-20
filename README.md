@@ -2,7 +2,9 @@
 
 Library to send transactions and create a proof object for them which can be used at any later time to proof that a transaction existet in the Tangle (also called proof of inclusion), as long as the funds weren't moved with another wallet/lib.
 
-Change values in config.json and run example with `cargo run`
+Run example with `cargo run --release`
+
+Change values in config.json if you want to send your own transactions
 
 The first time you need to send the amount of iotas specified in config.json to the address shown in the console, so the output can be used.
 

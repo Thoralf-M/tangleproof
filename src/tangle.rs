@@ -7,6 +7,8 @@ use iota::{
     TransactionBuilder, TransactionEssenceBuilder, UTXOInput, UnlockBlock,
 };
 use std::num::NonZeroU64;
+use std::time::Duration;
+use tokio::time::delay_for;
 /// Function to get the spent status of an outputid
 pub async fn is_output_spent(output_id: &OutputId, url: &str) -> Result<bool> {
     let r = Client::builder()
@@ -131,4 +133,30 @@ pub async fn send_transaction(
     let message_id = client.post_message(&message).await?;
 
     Ok((message_id, message))
+}
+
+/// Function to reattach or promote a transaction if it's unconfirmed
+pub async fn retry(message_id: &MessageId, node_url: &str, local_pow: bool) -> Result<()> {
+    let client = Client::builder()
+        .node(node_url)?
+        .local_pow(local_pow)
+        .build()?;
+    let mut latest_msg_id = *message_id;
+    for _ in 0..40 {
+        // Get the metadata to check if it needs to promote or reattach
+        let message_metadata = client.get_message().metadata(&latest_msg_id).await?;
+        if message_metadata.should_promote.unwrap_or(false) {
+            println!("Promoted: {}", client.promote(&latest_msg_id).await?.0);
+        } else if message_metadata.should_reattach.unwrap_or(false) {
+            latest_msg_id = client.reattach(&latest_msg_id).await?.0;
+            println!("Reattached: {} ", latest_msg_id);
+        } else {
+            if let Some(state) = message_metadata.ledger_inclusion_state {
+                println!("Leder inclustion state: {}", state);
+                return Ok(());
+            }
+        }
+        delay_for(Duration::from_secs(10)).await;
+    }
+    Ok(())
 }
