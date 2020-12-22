@@ -1,9 +1,8 @@
-use config::Config;
-use config::File;
+#[macro_use]
+extern crate dotenv_codegen;
 use iota::client::Client;
 use iota::Seed;
 use std::io;
-use std::path::Path;
 use std::time::Duration;
 use tangleproof::error::Result;
 use tangleproof::proof::InclusionProof;
@@ -19,15 +18,11 @@ async fn main() -> Result<()> {
 
 #[allow(dead_code)]
 async fn create_proof() -> Result<()> {
-    let mut settings: Config = Config::default();
-    settings
-        .merge(File::from(Path::new("config.json")))
-        .unwrap();
-    let node_url = settings.get_str("node_url").unwrap();
-    let proof_name = settings.get_str("proof_name").unwrap();
-    let amount = settings.get_int("amount").unwrap() as u64;
-    let seed = settings.get_str("seed").unwrap();
-    let local_pow = settings.get_bool("local_pow").unwrap();
+    let node_url = dotenv!("node_url");
+    let proof_name = dotenv!("proof_name");
+    let amount: u64 = dotenv!("amount").parse().unwrap();
+    let seed = dotenv!("seed");
+    let local_pow: bool = dotenv!("local_pow").parse().unwrap();
 
     println!("Your address is {}", get_address(&seed)?);
     println!("Send {}i to it before you continue", amount);
@@ -61,12 +56,8 @@ async fn create_proof() -> Result<()> {
 
 #[allow(dead_code)]
 async fn check_proof() -> Result<()> {
-    let mut settings: Config = Config::default();
-    settings
-        .merge(File::from(Path::new("config.json")))
-        .unwrap();
-    let node_url = settings.get_str("node_url").unwrap();
-    let proof_name = settings.get_str("proof_name").unwrap();
+    let node_url = dotenv!("node_url");
+    let proof_name = dotenv!("proof_name");
 
     let proof = InclusionProof::from_file(&proof_name).await?;
     println!("Proof is valid: {}", proof.is_valid(&node_url).await?);

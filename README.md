@@ -2,6 +2,16 @@
 
 Library to send transactions and create a proof object for them which can be used at any later time to proof that a transaction existet in the Tangle (also called proof of inclusion), as long as the funds weren't moved with another wallet/lib.
 
+Create a `.env` with the following values
+
+```
+node_url="http://api.lb-0.testnet.chrysalis2.com"
+proof_name=proof_example.json
+amount=1000
+seed=3ff69866a124d8cf168e5b928eb603bacc2d241f1a9d70af5c10f2dd34137896
+local_pow=false
+```
+
 Run example with `cargo run --release`
 
 Change values in config.json if you want to send your own transactions
