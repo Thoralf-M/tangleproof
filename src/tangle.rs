@@ -152,7 +152,7 @@ pub async fn retry(message_id: &MessageId, node_url: &str, local_pow: bool) -> R
             println!("Reattached: {} ", latest_msg_id);
         } else {
             if let Some(state) = message_metadata.ledger_inclusion_state {
-                println!("Leder inclustion state: {}", state);
+                println!("Leder inclusion state: {}", state);
                 return Ok(());
             }
         }
