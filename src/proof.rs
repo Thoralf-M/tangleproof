@@ -2,12 +2,16 @@ use crate::error::Result;
 use crate::io;
 use crate::tangle::send_transaction;
 use crate::validation::is_valid;
-use iota::client::types::MessageJson;
-use iota::prelude::{Message, OutputId};
-use iota::{MessageId, Payload, TransactionId};
+use iota::{
+    client::types::MessageJson,
+    prelude::{Message, OutputId},
+    MessageId, Payload, TransactionId,
+};
 use serde::{Deserialize, Serialize};
-use std::convert::{From, TryFrom};
-use std::str::FromStr;
+use std::{
+    convert::{From, TryFrom},
+    str::FromStr,
+};
 
 /// InclusionProof struct which holds the messages and the latest outputid
 #[derive(Serialize, Deserialize, Debug, Clone)]

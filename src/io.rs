@@ -1,9 +1,10 @@
 use crate::error::Result;
 use crate::proof::{InclusionProof, InclusionProofJson};
-use std::fs::File;
-use std::io::prelude::*;
-use std::io::BufWriter;
-use std::path::Path;
+use std::{
+    fs::File,
+    io::{prelude::*, BufWriter},
+    path::Path,
+};
 
 /// Function to read a proof from a file
 pub fn read_from_file<P: AsRef<Path>>(path: P) -> Result<Option<InclusionProof>> {

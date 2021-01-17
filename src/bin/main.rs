@@ -1,13 +1,9 @@
 #[macro_use]
 extern crate dotenv_codegen;
-use iota::client::Client;
-use iota::Seed;
-use std::io;
-use std::time::Duration;
-use tangleproof::error::Result;
-use tangleproof::proof::InclusionProof;
-use tangleproof::tangle::retry;
-use tokio::time::delay_for;
+use iota::{client::Client, Seed};
+use std::{io, time::Duration};
+use tangleproof::{error::Result, proof::InclusionProof, tangle::retry};
+use tokio::time::sleep;
 
 #[tokio::main]
 async fn main() -> Result<()> {
@@ -48,7 +44,7 @@ async fn create_proof() -> Result<()> {
     .await?;
     println!("Message sent: {}", msgid.to_string());
     println!("Transaction id in message: {}", txid.to_string());
-    delay_for(Duration::from_secs(10)).await;
+    sleep(Duration::from_secs(5)).await;
     retry(&msgid, &node_url, local_pow).await?;
     println!("Proof is valid: {}", proof.is_valid(&node_url).await?);
     Ok(())
@@ -65,12 +61,12 @@ async fn check_proof() -> Result<()> {
 }
 
 fn get_address(seed: &str) -> Result<String> {
-    let client = Client::builder().node("http:localhost")?.build()?;
+    let client = Client::build().with_node("http:localhost")?.finish()?;
     let seed = Seed::from_ed25519_bytes(&hex::decode(seed)?).unwrap();
     let address = client
         .find_addresses(&seed)
-        .account_index(0)
-        .range(0..1)
-        .get()?;
-    Ok(address[0].0.to_bech32())
+        .with_account_index(0)
+        .with_range(0..1)
+        .finish()?;
+    Ok(address[0].to_string())
 }

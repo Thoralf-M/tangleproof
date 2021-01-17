@@ -1,10 +1,10 @@
 use crate::error::Result;
 use crate::proof::InclusionProof;
 use crate::tangle::is_output_spent;
-use iota::prelude::Input;
-use iota::prelude::OutputId;
-use iota::prelude::UTXOInput;
-use iota::Payload;
+use iota::{
+    prelude::{Input, OutputId, UTXOInput},
+    Payload,
+};
 use std::collections::HashSet;
 
 /// Function to validate the structure of the proof and check if the latest output is unspent

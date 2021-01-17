@@ -7,14 +7,12 @@ edition = "2018"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-iota-core = {git = "https://github.com/iotaledger/iota.rs", branch = "dev", default-features = false}
-# iota-core = {git = "https://github.com/Thoralf-M/iota.rs", branch = "dev"}
-# iota-core = {path = "../iota.rs/iota-core/"}
+iota-core = {git = "https://github.com/iotaledger/iota.rs", default-features = false, rev = "1866948c0b95ae3fc52cf22d3b92205b03fed643" }
 hex = "0.4"
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 anyhow = "1.0"
 thiserror = "1.0"
 # For main.rs
-tokio = { version = "0.2", features = ["full"] }
+tokio = { version = "1.0", features = ["full"] }
 dotenv_codegen = "0.15.0"
