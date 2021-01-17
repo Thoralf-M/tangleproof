@@ -74,7 +74,7 @@ pub async fn retry(message_id: &MessageId, node_url: &str, local_pow: bool) -> R
             latest_msg_id = client.reattach(&latest_msg_id).await?.0;
             println!("Reattached: {} ", latest_msg_id);
         } else if let Some(state) = message_metadata.ledger_inclusion_state {
-            println!("Leder inclustion state: {}", state);
+            println!("Ledger inclusion state: {}", state);
             return Ok(());
         }
         sleep(Duration::from_secs(10)).await;
