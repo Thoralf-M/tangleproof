@@ -1,22 +1,15 @@
 # Tangleproof
 
-Library to send transactions and create a proof object for them which can be used at any later time to proof that a transaction existet in the Tangle (also called proof of inclusion), as long as the funds weren't moved with another wallet/lib.
+Library to send transactions and create a proof object for them which can be used at any later time to prove that a transaction existet in the Tangle (also called proof of inclusion), as long as the funds weren't moved with another wallet/lib.
 
-Create a `.env` with the following values
+Rename `.env.example` to `.env`
 
-```
-node_url="http://api.lb-0.testnet.chrysalis2.com"
-proof_name=proof_example.json
-amount=10000000
-seed=3ff69866a124d8cf168e5b928eb603bacc2d241f1a9d70af5c10f2dd34137896
-local_pow=true
-```
 Change the seed if you want to send your own transactions, you can get testnet iotas from https://faucet.testnet.chrysalis2.com/
 
 Run example with `cargo run --release`
 
+The first time you need to send the amount of iotas specified in config.json to the address shown in the console, so this output can be used then.
 
-The first time you need to send the amount of iotas specified in config.json to the address shown in the console, so the output can be used.
 
 
 For a proof to be valid one output of a transaction always needs to be used as input in the next transaction and the latest output needs to be unspent.
