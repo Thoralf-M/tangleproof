@@ -2,16 +2,13 @@ use crate::error::Result;
 use crate::io;
 use crate::tangle::send_transaction;
 use crate::validation::is_valid;
+pub use bee_rest_api::types::MessageDto;
 use iota::{
-    client::types::MessageJson,
     prelude::{Message, OutputId},
     MessageId, Payload, TransactionId,
 };
 use serde::{Deserialize, Serialize};
-use std::{
-    convert::{From, TryFrom},
-    str::FromStr,
-};
+use std::{convert::TryFrom, str::FromStr};
 
 /// InclusionProof struct which holds the messages and the latest outputid
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -24,7 +21,7 @@ pub struct InclusionProof {
 #[derive(Serialize, Deserialize, Debug)]
 pub struct InclusionProofJson {
     pub latest_output_id: String,
-    pub messages: Vec<MessageJson>,
+    pub messages: Vec<MessageDto>,
 }
 
 impl InclusionProof {
@@ -81,13 +78,17 @@ impl InclusionProof {
         Ok((messageid, tx.id(), proof))
     }
     /// Convert proof type for better readability
-    pub fn to_json(&self) -> InclusionProofJson {
+    pub fn to_json(&self) -> Result<InclusionProofJson> {
         let output_json = self.latest_output_id.to_string();
-        let json_messages = self.messages.iter().map(MessageJson::from).collect();
-        InclusionProofJson {
+        let json_messages = self
+            .messages
+            .iter()
+            .map(|m| MessageDto::try_from(m).map_err(|_| crate::error::Error::ConvertMessage))
+            .collect::<Result<Vec<MessageDto>>>()?;
+        Ok(InclusionProofJson {
             latest_output_id: output_json,
             messages: json_messages,
-        }
+        })
     }
     /// Convert Proof back from InclusionProofJson
     pub fn from_json(json_proof: InclusionProofJson) -> Result<Self> {
@@ -97,7 +98,7 @@ impl InclusionProof {
             messages: json_proof
                 .messages
                 .into_iter()
-                .map(|m| Message::try_from(m).expect("Invalid message in proof object"))
+                .map(|m| Message::try_from(&m).expect("Invalid message in proof object"))
                 .collect(),
         })
     }

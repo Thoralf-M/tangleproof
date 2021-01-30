@@ -7,7 +7,8 @@ edition = "2018"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-iota-core = {git = "https://github.com/iotaledger/iota.rs", default-features = false, rev = "1866948c0b95ae3fc52cf22d3b92205b03fed643" }
+iota-core = {git = "https://github.com/iotaledger/iota.rs", default-features = false, branch = "dev"}
+bee-rest-api = { git = "https://github.com/iotaledger/bee.git", branch = "chrysalis-pt-2" }
 hex = "0.4"
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
@@ -15,4 +16,4 @@ anyhow = "1.0"
 thiserror = "1.0"
 # For main.rs
 tokio = { version = "1.0", features = ["full"] }
-dotenv_codegen = "0.15.0"
+dotenv = "0.15.0"

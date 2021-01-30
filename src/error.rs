@@ -15,6 +15,8 @@ pub enum Error {
     InvalidParameter(String),
     #[error("Proof has no message")]
     NoMessage,
+    #[error("Can't convert Message to or from MessageDto")]
+    ConvertMessage,
     #[error("Proof has no UTXO")]
     NoUtxo,
     #[error("Messages don't reference each other")]

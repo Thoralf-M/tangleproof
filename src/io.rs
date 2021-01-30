@@ -21,7 +21,7 @@ pub fn read_from_file<P: AsRef<Path>>(path: P) -> Result<Option<InclusionProof>>
 
 /// Function to write a proof to a file
 pub fn write_to_file<P: AsRef<Path>>(path: P, proof: InclusionProof) -> Result<()> {
-    let proof_json = proof.to_json();
+    let proof_json = proof.to_json()?;
     let jsonvalue = serde_json::to_value(&proof_json)?;
     let file = File::create(path)?;
     let bw = BufWriter::new(file);

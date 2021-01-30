@@ -7,11 +7,11 @@ Create a `.env` with the following values
 ```
 node_url="http://api.lb-0.testnet.chrysalis2.com"
 proof_name=proof_example.json
-amount=1000000
+amount=10000000
 seed=3ff69866a124d8cf168e5b928eb603bacc2d241f1a9d70af5c10f2dd34137896
-local_pow=false
+local_pow=true
 ```
-Change the values if you want to send your own transactions
+Change the seed if you want to send your own transactions, you can get testnet iotas from https://faucet.testnet.chrysalis2.com/
 
 Run example with `cargo run --release`
 

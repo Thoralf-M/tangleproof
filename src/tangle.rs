@@ -4,7 +4,7 @@ use std::time::Duration;
 use tokio::time::sleep;
 /// Function to get the spent status of an outputid
 pub async fn is_output_spent(output_id: &OutputId, url: &str) -> Result<bool> {
-    let r = Client::build()
+    let r = Client::builder()
         .with_node(url)?
         .finish()?
         .get_output(
@@ -24,7 +24,7 @@ pub async fn send_transaction(
     local_pow: bool,
     seed: &str,
 ) -> Result<(MessageId, Message)> {
-    let client = Client::build()
+    let client = Client::builder()
         .with_node(node_url)?
         .with_local_pow(local_pow)
         .finish()?;
@@ -52,15 +52,13 @@ pub async fn send_transaction(
         }
         message_builder = message_builder.with_input(utxo_input);
     }
-    let message_id = message_builder.finish().await?;
-
-    let message = client.get_message().data(&message_id).await?;
-    Ok((message_id, message))
+    let message = message_builder.finish().await?;
+    Ok((message.id().0, message))
 }
 
 /// Function to reattach or promote a transaction if it's unconfirmed
 pub async fn retry(message_id: &MessageId, node_url: &str, local_pow: bool) -> Result<()> {
-    let client = Client::build()
+    let client = Client::builder()
         .with_node(node_url)?
         .with_local_pow(local_pow)
         .finish()?;
@@ -74,7 +72,7 @@ pub async fn retry(message_id: &MessageId, node_url: &str, local_pow: bool) -> R
             latest_msg_id = client.reattach(&latest_msg_id).await?.0;
             println!("Reattached: {} ", latest_msg_id);
         } else if let Some(state) = message_metadata.ledger_inclusion_state {
-            println!("Ledger inclusion state: {}", state);
+            println!("Ledger inclusion state: {:?}", state);
             return Ok(());
         }
         sleep(Duration::from_secs(10)).await;

@@ -1,12 +1,14 @@
-#[macro_use]
-extern crate dotenv_codegen;
+extern crate dotenv;
+use dotenv::dotenv;
 use iota::{client::Client, Seed};
+use std::env;
 use std::{io, time::Duration};
 use tangleproof::{error::Result, proof::InclusionProof, tangle::retry};
 use tokio::time::sleep;
 
 #[tokio::main]
 async fn main() -> Result<()> {
+    dotenv().ok();
     // create_proof().await?;
     check_proof().await?;
     Ok(())
@@ -14,11 +16,11 @@ async fn main() -> Result<()> {
 
 #[allow(dead_code)]
 async fn create_proof() -> Result<()> {
-    let node_url = dotenv!("node_url");
-    let proof_name = dotenv!("proof_name");
-    let amount: u64 = dotenv!("amount").parse().unwrap();
-    let seed = dotenv!("seed");
-    let local_pow: bool = dotenv!("local_pow").parse().unwrap();
+    let node_url = env::var("node_url").unwrap();
+    let proof_name = env::var("proof_name").unwrap();
+    let amount: u64 = env::var("amount").unwrap().parse().unwrap();
+    let seed = env::var("seed").unwrap();
+    let local_pow: bool = env::var("local_pow").unwrap().parse().unwrap();
 
     println!("Your address is {}", get_address(&seed)?);
     println!("Send {}i to it before you continue", amount);
@@ -52,8 +54,8 @@ async fn create_proof() -> Result<()> {
 
 #[allow(dead_code)]
 async fn check_proof() -> Result<()> {
-    let node_url = dotenv!("node_url");
-    let proof_name = dotenv!("proof_name");
+    let node_url = env::var("node_url").unwrap();
+    let proof_name = env::var("proof_name").unwrap();
 
     let proof = InclusionProof::from_file(&proof_name).await?;
     println!("Proof is valid: {}", proof.is_valid(&node_url).await?);
@@ -61,7 +63,7 @@ async fn check_proof() -> Result<()> {
 }
 
 fn get_address(seed: &str) -> Result<String> {
-    let client = Client::build().with_node("http:localhost")?.finish()?;
+    let client = Client::builder().with_node("http:localhost")?.finish()?;
     let seed = Seed::from_ed25519_bytes(&hex::decode(seed)?).unwrap();
     let address = client
         .find_addresses(&seed)
