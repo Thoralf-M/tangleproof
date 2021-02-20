@@ -3,7 +3,7 @@ use crate::proof::InclusionProof;
 use crate::tangle::is_output_spent;
 use iota::{
     prelude::{Input, OutputId, UTXOInput},
-    Payload,
+    Essence, Payload,
 };
 use std::collections::HashSet;
 
@@ -20,9 +20,19 @@ pub async fn is_valid(proof: &InclusionProof, node_url: &str) -> Result<bool> {
                 if let Payload::Transaction(tx1) =
                     &proof.messages[index + 1].payload().as_ref().unwrap()
                 {
-                    let outputs = tx.essence().outputs();
+                    let outputs = match tx.essence() {
+                        Essence::Regular(essence) => essence.outputs(),
+                        _ => {
+                            panic!("Unexisting essence type");
+                        }
+                    };
                     let mut output_ids = Vec::new();
-                    let inputs = tx1.essence().inputs();
+                    let inputs = match tx1.essence() {
+                        Essence::Regular(essence) => essence.inputs(),
+                        _ => {
+                            panic!("Unexisting essence type");
+                        }
+                    };
                     for i in 0..outputs.len() {
                         output_ids.push(Input::UTXO(UTXOInput::from(
                             OutputId::new(tx.id(), i as u16).expect("Can't get output id"),
@@ -35,6 +45,26 @@ pub async fn is_valid(proof: &InclusionProof, node_url: &str) -> Result<bool> {
                         return Err(crate::error::Error::InvalidMessageChain);
                     }
                 }
+                //     match tx.essence() {
+                //         Essence::Regular(essence) => {
+                //             let mut output_ids = Vec::new();
+                //             for i in 0..essence.outputs().len() {
+                //                 output_ids.push(Input::UTXO(UTXOInput::from(
+                //                     OutputId::new(tx.id(), i as u16).expect("Can't get output id"),
+                //                 )));
+                //             }
+                //             let a: HashSet<_> = output_ids.into_iter().collect();
+                //             let b: HashSet<_> = essence.inputs().iter().cloned().collect();
+                //             let intersection: Vec<&Input> = a.intersection(&b).collect();
+                //             if intersection.is_empty() {
+                //                 return Err(crate::error::Error::InvalidMessageChain);
+                //             }
+                //         }
+                //         _ => {
+                //             panic!("Unexisting essence type");
+                //         }
+                //     }
+                // }
             } else {
                 return Err(crate::error::Error::InvalidMessageChain);
             }

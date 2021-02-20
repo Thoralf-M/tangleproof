@@ -1,12 +1,13 @@
 use crate::error::Result;
-use iota::{signing::Seed, Client, Message, MessageId, OutputId, UTXOInput};
+use iota::{client::seed::Seed, Client, Message, MessageId, OutputId, UTXOInput};
 use std::time::Duration;
 use tokio::time::sleep;
 /// Function to get the spent status of an outputid
 pub async fn is_output_spent(output_id: &OutputId, url: &str) -> Result<bool> {
     let r = Client::builder()
         .with_node(url)?
-        .finish()?
+        .finish()
+        .await?
         .get_output(
             &UTXOInput::new(*output_id.transaction_id(), 0).expect("Couldn't convert output"),
         )
@@ -27,18 +28,20 @@ pub async fn send_transaction(
     let client = Client::builder()
         .with_node(node_url)?
         .with_local_pow(local_pow)
-        .finish()?;
+        .finish()
+        .await?;
 
-    let seed = Seed::from_ed25519_bytes(&hex::decode(seed)?).unwrap();
+    let seed = Seed::from_bytes(&hex::decode(seed)?).unwrap();
 
     let address = client
         .find_addresses(&seed)
         .with_account_index(0)
         .with_range(0..1)
-        .finish()?;
+        .finish()
+        .await?;
 
     let mut message_builder = client
-        .send()
+        .message()
         .with_seed(&seed)
         .with_output(&address[0].clone(), amount)?
         .with_index(indexation_tag)
@@ -61,7 +64,8 @@ pub async fn retry(message_id: &MessageId, node_url: &str, local_pow: bool) -> R
     let client = Client::builder()
         .with_node(node_url)?
         .with_local_pow(local_pow)
-        .finish()?;
+        .finish()
+        .await?;
     let mut latest_msg_id = *message_id;
     for _ in 0..40 {
         // Get the metadata to check if it needs to promote or reattach

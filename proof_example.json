@@ -1,16 +1,20 @@
 {
-  "latest_output_id": "bd01bff6bbda4a6b8fdbdd4ad8211b57c20024fb17e9fc8eb4e769aba7b716e80000",
+  "latest_output_id": "be9810a85904edd85988e9dd079ef597191720b895b0f443047772e1e138e3690000",
   "messages": [
     {
-      "networkId": "10360767990291427429",
-      "nonce": "4611686018428086772",
-      "parent1MessageId": "b382bcf8df41adc19cbe579af8f36630a2c76cb25afe0f16bca1151cf3750e06",
-      "parent2MessageId": "ebab95df60e6e1f0f10ada1d23318b621cfad9c4275d0bd83678823216bac8db",
+      "networkId": "3720706210109972015",
+      "nonce": "13835058055282192517",
+      "parentMessageIds": [
+        "609dec2745988b21497372e242fe255875bdcaf12ac82ed3c271b973b3ae0499",
+        "e8b6c5f0dd100c23865ce9d868acac55320e82e78bb35c46d7148b26785d3003",
+        "ea4703dec5eed99544a3cf8915d88e1fc0fc15b5719cf8b0c32232da5b5dc67d",
+        "ffe3650aa8f5d3a11a9b9d211957637da782ce92e3bd1786dcc48e87d560b63a"
+      ],
       "payload": {
         "essence": {
           "inputs": [
             {
-              "transactionId": "ffbd91a84c8cebbff80f78ae6441cf89b9ce7527ed83b537995721dec9950130",
+              "transactionId": "e170339cd0ca2403f6a2c349f814e584d6bf7d0b87d2c0ffefe9fa884f812e6b",
               "transactionOutputIndex": 0,
               "type": 0
             }
@@ -18,8 +22,8 @@
           "outputs": [
             {
               "address": {
-                "address": "a48a84f55b2bf59cc0e9bf5c9738389c684b154c27ac5d054ff88d0ab82c0a89",
-                "type": 1
+                "address": "4e0db85e878dfe3f7f02c5ad1c5ac68ed9a2fb5c17e0ccf2d0c4491e4c8dba01",
+                "type": 0
               },
               "amount": 10000000,
               "type": 0
@@ -27,7 +31,7 @@
           ],
           "payload": {
             "data": "4669727374206d6573736167650d0a",
-            "index": "Tangleproof\r\n",
+            "index": "54616e676c6570726f6f660d0a",
             "type": 2
           },
           "type": 0
@@ -36,9 +40,9 @@
         "unlockBlocks": [
           {
             "signature": {
-              "publicKey": "bec491570df4cc951308e4cb7a8f82d4815ac7f2088624f914c60c4911c52091",
-              "signature": "9f9cc0c395bdf33b8137cde66dd09d5cf3c50ed4ad33ca53f45aa6c95055d528f6729175cde85cbf62721cefc576803b7f09fa71ada3b18978aa2e3373533805",
-              "type": 1
+              "publicKey": "5d140a4f0a43de67822322fecf48db2af75cc98ab5442b5e9cd1a9424fa2856a",
+              "signature": "6b6ed8cfa534b067b48b5416e3f5f56e93347a88e74727173a9beec88cb9743a73667af0a98588426f4ce3d45a4217e1e59f78480a3d6d4683a5c3e896b9e101",
+              "type": 0
             },
             "type": 0
           }
@@ -46,15 +50,19 @@
       }
     },
     {
-      "networkId": "10360767990291427429",
-      "nonce": "4611686018427749664",
-      "parent1MessageId": "d6ffbcfd8e0cf12a604249e3e920fe1b8712c150fd4768d4f10ce0b2c1739728",
-      "parent2MessageId": "e3843054c395a84612f61e0496728cbda719d4265f4af3ffe98fbd36a0a85ac2",
+      "networkId": "3720706210109972015",
+      "nonce": "13835058055282198293",
+      "parentMessageIds": [
+        "37228d0e19ee61440e199cad548e53c37448691be61e31362869471acd4571b6",
+        "7d5f1323fa2c986a0c77620ca3081ec0873a699f79652dfdd5ef4859271cfab9",
+        "ba7a407dfc02b7e11c6ea495e41912c7f7750ae2a9b7305af5963817928b4001",
+        "be2d0472bd2a8e15d2da39c34f5e57b08271b6f84f99de95615ba1079f4c740f"
+      ],
       "payload": {
         "essence": {
           "inputs": [
             {
-              "transactionId": "35b9b52fe1794ad81f6a68686324449764c60ca1e551f19fbb0c58a65d258e14",
+              "transactionId": "6924697bd52884e23956bb5d62140194f65becf027648a41262d5ad6f94cedc5",
               "transactionOutputIndex": 0,
               "type": 0
             }
@@ -62,8 +70,8 @@
           "outputs": [
             {
               "address": {
-                "address": "a48a84f55b2bf59cc0e9bf5c9738389c684b154c27ac5d054ff88d0ab82c0a89",
-                "type": 1
+                "address": "4e0db85e878dfe3f7f02c5ad1c5ac68ed9a2fb5c17e0ccf2d0c4491e4c8dba01",
+                "type": 0
               },
               "amount": 10000000,
               "type": 0
@@ -71,7 +79,7 @@
           ],
           "payload": {
             "data": "5365636f6e64206d6573736167650d0a",
-            "index": "Tangleproof\r\n",
+            "index": "54616e676c6570726f6f660d0a",
             "type": 2
           },
           "type": 0
@@ -80,9 +88,9 @@
         "unlockBlocks": [
           {
             "signature": {
-              "publicKey": "bec491570df4cc951308e4cb7a8f82d4815ac7f2088624f914c60c4911c52091",
-              "signature": "d5c4d1ea764f1383ffa7cfba4aa308a2a8ac80c6a775b1d7caf8ff4082dbeb69a0313f27c002a75ec2186379efa2672bec1127245061b62ee985ec7c6b4fa100",
-              "type": 1
+              "publicKey": "5d140a4f0a43de67822322fecf48db2af75cc98ab5442b5e9cd1a9424fa2856a",
+              "signature": "903a68ff832afb6a2dbcd5a5426e887f8745001b9a0d3bc13170940b44b00ab6e3ae44a98c6c7cedb56007fb6c857828b03ed3d605da7e1b24799a70f46cdd06",
+              "type": 0
             },
             "type": 0
           }

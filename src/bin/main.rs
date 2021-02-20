@@ -9,6 +9,7 @@ use tokio::time::sleep;
 #[tokio::main]
 async fn main() -> Result<()> {
     dotenv().ok();
+    // Uncomment to create your own proof
     // create_proof().await?;
     check_proof().await?;
     Ok(())
@@ -22,7 +23,7 @@ async fn create_proof() -> Result<()> {
     let seed = env::var("seed").unwrap();
     let local_pow: bool = env::var("local_pow").unwrap().parse().unwrap();
 
-    println!("Your address is {}", get_address(&seed)?);
+    println!("Your address is {}", get_address(&seed, &node_url).await?);
     println!("Send {}i to it before you continue", amount);
 
     println!("Enter indexation tag");
@@ -62,13 +63,14 @@ async fn check_proof() -> Result<()> {
     Ok(())
 }
 
-fn get_address(seed: &str) -> Result<String> {
-    let client = Client::builder().with_node("http:localhost")?.finish()?;
-    let seed = Seed::from_ed25519_bytes(&hex::decode(seed)?).unwrap();
+async fn get_address(seed: &str, node_url: &str) -> Result<String> {
+    let client = Client::builder().with_node(node_url)?.finish().await?;
+    let seed = Seed::from_bytes(&hex::decode(seed)?).unwrap();
     let address = client
         .find_addresses(&seed)
         .with_account_index(0)
         .with_range(0..1)
-        .finish()?;
+        .finish()
+        .await?;
     Ok(address[0].to_string())
 }
