@@ -1,5 +1,5 @@
 use crate::error::Result;
-use iota::{client::seed::Seed, Client, Message, MessageId, OutputId, UTXOInput};
+use iota::{client::Seed, Client, Message, MessageId, OutputId, UTXOInput};
 use std::time::Duration;
 use tokio::time::sleep;
 /// Function to get the spent status of an outputid
@@ -31,10 +31,10 @@ pub async fn send_transaction(
         .finish()
         .await?;
 
-    let seed = Seed::from_bytes(&hex::decode(seed)?).unwrap();
+    let seed = Seed::from_bytes(&hex::decode(seed)?);
 
     let address = client
-        .find_addresses(&seed)
+        .get_addresses(&seed)
         .with_account_index(0)
         .with_range(0..1)
         .finish()

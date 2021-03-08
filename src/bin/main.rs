@@ -65,9 +65,9 @@ async fn check_proof() -> Result<()> {
 
 async fn get_address(seed: &str, node_url: &str) -> Result<String> {
     let client = Client::builder().with_node(node_url)?.finish().await?;
-    let seed = Seed::from_bytes(&hex::decode(seed)?).unwrap();
+    let seed = Seed::from_bytes(&hex::decode(seed)?);
     let address = client
-        .find_addresses(&seed)
+        .get_addresses(&seed)
         .with_account_index(0)
         .with_range(0..1)
         .finish()
