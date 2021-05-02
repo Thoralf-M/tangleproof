@@ -2,8 +2,8 @@ use crate::error::Result;
 use crate::io;
 use crate::tangle::send_transaction;
 use crate::validation::is_valid;
-pub use bee_rest_api::types::MessageDto;
 use iota::{
+    bee_rest_api::types::dtos::MessageDto,
     prelude::{Message, OutputId},
     MessageId, Payload, TransactionId,
 };

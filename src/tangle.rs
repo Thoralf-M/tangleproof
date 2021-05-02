@@ -1,5 +1,5 @@
 use crate::error::Result;
-use iota::{client::Seed, Client, Message, MessageId, OutputId, UTXOInput};
+use iota::{client::Seed, Client, Message, MessageId, OutputId, UtxoInput};
 use std::time::Duration;
 use tokio::time::sleep;
 /// Function to get the spent status of an outputid
@@ -9,7 +9,7 @@ pub async fn is_output_spent(output_id: &OutputId, url: &str) -> Result<bool> {
         .finish()
         .await?
         .get_output(
-            &UTXOInput::new(*output_id.transaction_id(), 0).expect("Couldn't convert output"),
+            &UtxoInput::new(*output_id.transaction_id(), 0).expect("Couldn't convert output"),
         )
         .await?;
     Ok(r.is_spent)
@@ -47,7 +47,7 @@ pub async fn send_transaction(
         .with_index(indexation_tag)
         .with_data(data.as_bytes().to_vec());
     if let Some(input) = input {
-        let utxo_input = UTXOInput::from(input);
+        let utxo_input = UtxoInput::from(input);
         // Check if already spent before adding it
         let metadata = client.get_output(&utxo_input).await?;
         if metadata.is_spent {

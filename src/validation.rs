@@ -2,7 +2,7 @@ use crate::error::Result;
 use crate::proof::InclusionProof;
 use crate::tangle::is_output_spent;
 use iota::{
-    prelude::{Input, OutputId, UTXOInput},
+    prelude::{Input, OutputId, UtxoInput},
     Essence, Payload,
 };
 use std::collections::HashSet;
@@ -34,7 +34,7 @@ pub async fn is_valid(proof: &InclusionProof, node_url: &str) -> Result<bool> {
                         }
                     };
                     for i in 0..outputs.len() {
-                        output_ids.push(Input::UTXO(UTXOInput::from(
+                        output_ids.push(Input::Utxo(UtxoInput::from(
                             OutputId::new(tx.id(), i as u16).expect("Can't get output id"),
                         )));
                     }
@@ -49,7 +49,7 @@ pub async fn is_valid(proof: &InclusionProof, node_url: &str) -> Result<bool> {
                 //         Essence::Regular(essence) => {
                 //             let mut output_ids = Vec::new();
                 //             for i in 0..essence.outputs().len() {
-                //                 output_ids.push(Input::UTXO(UTXOInput::from(
+                //                 output_ids.push(Input::UTXO(UtxoInput::from(
                 //                     OutputId::new(tx.id(), i as u16).expect("Can't get output id"),
                 //                 )));
                 //             }
