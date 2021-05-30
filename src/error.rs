@@ -8,7 +8,7 @@ pub enum Error {
     #[error("IO Error")]
     IOError(#[from] std::io::Error),
     #[error("Iota_client Error")]
-    IotaClientError(#[from] iota::client::Error),
+    IotaClientError(#[from] iota_client::Error),
     #[error("Hex Error")]
     HexError(#[from] hex::FromHexError),
     #[error("Parameter is invalid:{0}")]

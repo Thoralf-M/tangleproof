@@ -2,10 +2,9 @@ use crate::error::Result;
 use crate::io;
 use crate::tangle::send_transaction;
 use crate::validation::is_valid;
-use iota::{
+use iota_client::{
+    bee_message::prelude::{Message, MessageId, OutputId, Payload, TransactionId},
     bee_rest_api::types::dtos::MessageDto,
-    prelude::{Message, OutputId},
-    MessageId, Payload, TransactionId,
 };
 use serde::{Deserialize, Serialize};
 use std::{convert::TryFrom, str::FromStr};
@@ -106,7 +105,7 @@ impl InclusionProof {
     pub async fn from_file(filename: &str) -> Result<Self> {
         match io::read_from_file(filename)? {
             Some(proof) => Ok(proof),
-            _ => return Err(crate::error::Error::InvalidProofFile),
+            _ => Err(crate::error::Error::InvalidProofFile),
         }
     }
     /// Verify transaction chain and check if latest output is unspent

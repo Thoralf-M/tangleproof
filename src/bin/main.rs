@@ -1,6 +1,6 @@
 extern crate dotenv;
 use dotenv::dotenv;
-use iota::{client::Client, Seed};
+use iota_client::{Client, Seed};
 use std::env;
 use std::{io, time::Duration};
 use tangleproof::{error::Result, proof::InclusionProof, tangle::retry};

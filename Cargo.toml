@@ -7,7 +7,7 @@ edition = "2018"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-iota-core = {git = "https://github.com/iotaledger/iota.rs", rev = "60892fa6b649d9efa540349b68dd70a57cc300a9" }
+iota-client = {git = "https://github.com/iotaledger/iota.rs", rev = "eda30070a820cee336395a84957e29f0642ceaff" }
 hex = "0.4"
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"

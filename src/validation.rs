@@ -1,10 +1,7 @@
 use crate::error::Result;
 use crate::proof::InclusionProof;
 use crate::tangle::is_output_spent;
-use iota::{
-    prelude::{Input, OutputId, UtxoInput},
-    Essence, Payload,
-};
+use iota_client::bee_message::prelude::{Essence, Input, OutputId, Payload, UtxoInput};
 use std::collections::HashSet;
 
 /// Function to validate the structure of the proof and check if the latest output is unspent
@@ -15,24 +12,16 @@ pub async fn is_valid(proof: &InclusionProof, node_url: &str) -> Result<bool> {
     let last_index = proof.messages.len() - 1;
     for (index, message) in proof.messages.iter().enumerate() {
         if last_index != index {
-            // Check if previous tx is used in the input
+            // Check if output from previous tx is used as input
             if let Payload::Transaction(tx) = message.payload().as_ref().unwrap() {
-                if let Payload::Transaction(tx1) =
+                if let Payload::Transaction(newer_tx) =
                     &proof.messages[index + 1].payload().as_ref().unwrap()
                 {
-                    let outputs = match tx.essence() {
-                        Essence::Regular(essence) => essence.outputs(),
-                        _ => {
-                            panic!("Unexisting essence type");
-                        }
-                    };
+                    let Essence::Regular(essence) = tx.essence();
+                    let outputs = essence.outputs();
                     let mut output_ids = Vec::new();
-                    let inputs = match tx1.essence() {
-                        Essence::Regular(essence) => essence.inputs(),
-                        _ => {
-                            panic!("Unexisting essence type");
-                        }
-                    };
+                    let Essence::Regular(essence1) = newer_tx.essence();
+                    let inputs = essence1.inputs();
                     for i in 0..outputs.len() {
                         output_ids.push(Input::Utxo(UtxoInput::from(
                             OutputId::new(tx.id(), i as u16).expect("Can't get output id"),
@@ -40,31 +29,10 @@ pub async fn is_valid(proof: &InclusionProof, node_url: &str) -> Result<bool> {
                     }
                     let a: HashSet<_> = output_ids.into_iter().collect();
                     let b: HashSet<_> = inputs.iter().cloned().collect();
-                    let intersection: Vec<&Input> = a.intersection(&b).collect();
-                    if intersection.is_empty() {
+                    if a.intersection(&b).next().is_none() {
                         return Err(crate::error::Error::InvalidMessageChain);
                     }
                 }
-                //     match tx.essence() {
-                //         Essence::Regular(essence) => {
-                //             let mut output_ids = Vec::new();
-                //             for i in 0..essence.outputs().len() {
-                //                 output_ids.push(Input::UTXO(UtxoInput::from(
-                //                     OutputId::new(tx.id(), i as u16).expect("Can't get output id"),
-                //                 )));
-                //             }
-                //             let a: HashSet<_> = output_ids.into_iter().collect();
-                //             let b: HashSet<_> = essence.inputs().iter().cloned().collect();
-                //             let intersection: Vec<&Input> = a.intersection(&b).collect();
-                //             if intersection.is_empty() {
-                //                 return Err(crate::error::Error::InvalidMessageChain);
-                //             }
-                //         }
-                //         _ => {
-                //             panic!("Unexisting essence type");
-                //         }
-                //     }
-                // }
             } else {
                 return Err(crate::error::Error::InvalidMessageChain);
             }

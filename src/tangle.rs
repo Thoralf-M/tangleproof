@@ -1,5 +1,8 @@
 use crate::error::Result;
-use iota::{client::Seed, Client, Message, MessageId, OutputId, UtxoInput};
+use iota_client::{
+    bee_message::prelude::{Message, MessageId, OutputId, UtxoInput},
+    Client, Seed,
+};
 use std::time::Duration;
 use tokio::time::sleep;
 /// Function to get the spent status of an outputid
