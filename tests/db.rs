@@ -1,9 +1,29 @@
-use iota_client::{Client, MqttEvent, Result, Topic};
-use serde::{Deserialize, Serialize};
-use std::sync::{mpsc::channel, Arc, Mutex};
 use tangleproof::chronist::Chronist;
-#[tokio::main]
-async fn main() -> Result<()> {
+#[tokio::test]
+async fn db() {
+    let chronist = Chronist::new(
+        "testdb",
+        "https://api.lb-0.testnet.chrysalis2.com",
+        "256a818b2aac458941f7274985a410e57fb750f3a3a67969ece5bd9ae7eef5b2",
+    )
+    .await
+    .unwrap();
+
+    let tips = chronist.iota_client.get_tips().await.unwrap();
+
+    chronist.save_message(&tips[0].to_string()).await.unwrap();
+    let msg = chronist.get_message(&tips[0].to_string()).await.unwrap();
+    println!("{:?}", msg);
+    assert_eq!(msg.id().0, tips[0]);
+    let message_ids = chronist.get_message_ids().await.unwrap();
+    println!("{:?}", message_ids);
+}
+
+use iota_client::{bee_message::Message, Client, MqttEvent, Result, Topic};
+use std::sync::{mpsc::channel, Arc, Mutex};
+
+#[tokio::test]
+async fn spam() -> Result<()> {
     let chronist = Chronist::new(
         "testdb",
         "https://chrysalis-nodes.iota.org",
@@ -32,16 +52,11 @@ async fn main() -> Result<()> {
     });
 
     iota.subscriber()
-        .with_topics(vec![Topic::new("messages/referenced").unwrap()])
+        .with_topics(vec![Topic::new("messages").unwrap()])
         .subscribe(move |event| match event.topic.as_str() {
-            "messages/referenced" => {
-                #[derive(Serialize, Deserialize, Debug)]
-                pub struct Referenced {
-                    #[serde(rename = "messageId")]
-                    pub message_id: String,
-                }
-                let message: Referenced = serde_json::from_str(&event.payload).unwrap();
-                tx.lock().unwrap().send(message.message_id).unwrap();
+            "messages" => {
+                let message: Message = serde_json::from_str(&event.payload).unwrap();
+                tx.lock().unwrap().send(message).unwrap();
             }
             _ => println!("{:?}", event),
         })
@@ -52,14 +67,14 @@ async fn main() -> Result<()> {
     for outer in 0..2000 {
         let mut tasks = Vec::new();
         for _ in 0..50 {
-            let message_id = rx.recv().unwrap();
+            let message = rx.recv().unwrap();
             let chronist__ = chronist_.clone();
             tasks.push(async move {
                 tokio::spawn(async move {
                     let _ = chronist__
                         .read()
                         .await
-                        .save_message(&message_id)
+                        .save_message(&message.id().0.to_string())
                         .await
                         .unwrap();
                 })
@@ -71,47 +86,28 @@ async fn main() -> Result<()> {
             .await
             .expect("failed to sync addresses");
 
-        if outer % 10 == 0 {
-            let tips = chronist_
-                .read()
-                .await
-                .iota_client
-                .read()
-                .await
-                .get_tips()
-                .await
-                .unwrap();
+        let tips = chronist_.read().await.iota_client.get_tips().await.unwrap();
 
-            let now = std::time::Instant::now();
-            chronist_
-                .read()
-                .await
-                .save_message(&tips[0].to_string())
-                .await
-                .unwrap();
-            println!("save_message took: {:.2?}", now.elapsed());
-            let _msg = chronist_
-                .read()
-                .await
-                .get_message(&tips[0].to_string())
-                .await
-                .unwrap();
-            println!("get_message took: {:.2?}", now.elapsed());
-            let message_ids = chronist_.read().await.get_message_ids().await.unwrap();
-            println!("message_ids len: {}", message_ids.len());
-            println!("message_ids took: {:.2?}", now.elapsed());
-        }
+        let now = std::time::Instant::now();
+        chronist_
+            .read()
+            .await
+            .save_message(&tips[0].to_string())
+            .await
+            .unwrap();
+        println!("save_message took: {:.2?}", now.elapsed());
+        let _msg = chronist_
+            .read()
+            .await
+            .get_message(&tips[0].to_string())
+            .await
+            .unwrap();
+        println!("get_message took: {:.2?}", now.elapsed());
+        let message_ids = chronist_.read().await.get_message_ids().await.unwrap();
+        println!("message_ids len: {}", message_ids.len());
     }
 
-    let tips = chronist_
-        .read()
-        .await
-        .iota_client
-        .read()
-        .await
-        .get_tips()
-        .await
-        .unwrap();
+    let tips = chronist_.read().await.iota_client.get_tips().await.unwrap();
 
     let now = std::time::Instant::now();
     chronist_

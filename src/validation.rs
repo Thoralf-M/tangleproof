@@ -1,49 +1,75 @@
+use crate::chronist::TransactionData;
 use crate::error::Result;
-use crate::proof::InclusionProof;
-use crate::tangle::is_output_spent;
-use iota_client::bee_message::prelude::{Essence, Input, OutputId, Payload, UtxoInput};
-use std::collections::HashSet;
+use crate::inclusion_proof::InclusionProof;
+use crate::iota_api::is_output_known;
+use iota_client::bee_message::prelude::{Essence, Input, Message, Payload};
+use iota_client::Client;
 
 /// Function to validate the structure of the proof and check if the latest output is unspent
-pub async fn is_valid(proof: &InclusionProof, node_url: &str) -> Result<bool> {
-    if proof.messages.is_empty() {
+// 1. check if message id is part of the first indexation payload
+// 2. check for each transaction if one output is used as input in the next transaction
+// 3. check if latest output is known by the node
+pub async fn is_valid_proof(iota_client: &Client, proof: &InclusionProof) -> Result<bool> {
+    if proof.transaction_messages.is_empty() {
         return Err(crate::error::Error::NoMessage);
     }
-    let last_index = proof.messages.len() - 1;
-    for (index, message) in proof.messages.iter().enumerate() {
+    // 1. check if message id is part of the first indexation payload
+    let msg_id = proof.message.id().0;
+    let data = get_indexation_data(
+        proof
+            .transaction_messages
+            .first()
+            .ok_or(crate::error::Error::NoMessage)?,
+    )?;
+    let transaction_data: TransactionData = serde_json::from_str(&data)?;
+    if !transaction_data.message_ids.contains(&msg_id) {
+        return Err(crate::error::Error::MessageIdNotInTransaction);
+    }
+    // 2. check for each transaction if one output is used as input in the next transaction
+    let last_index = proof.transaction_messages.len() - 1;
+    for (index, message) in proof.transaction_messages.iter().enumerate() {
         if last_index != index {
-            // Check if output from previous tx is used as input
-            if let Payload::Transaction(tx) = message.payload().as_ref().unwrap() {
-                if let Payload::Transaction(newer_tx) =
-                    &proof.messages[index + 1].payload().as_ref().unwrap()
+            // Check if output from previous tx is used as input in next tx
+            if let Some(Payload::Transaction(tx)) = message.payload() {
+                if let Some(Payload::Transaction(index_plus_one_tx)) =
+                    &proof.transaction_messages[index + 1].payload()
                 {
-                    let Essence::Regular(essence) = tx.essence();
-                    let outputs = essence.outputs();
-                    let mut output_ids = Vec::new();
-                    let Essence::Regular(essence1) = newer_tx.essence();
-                    let inputs = essence1.inputs();
-                    for i in 0..outputs.len() {
-                        output_ids.push(Input::Utxo(UtxoInput::from(
-                            OutputId::new(tx.id(), i as u16).expect("Can't get output id"),
-                        )));
-                    }
-                    let a: HashSet<_> = output_ids.into_iter().collect();
-                    let b: HashSet<_> = inputs.iter().cloned().collect();
-                    if a.intersection(&b).next().is_none() {
+                    let tx_id_first = tx.id();
+                    let Essence::Regular(essence1) = index_plus_one_tx.essence();
+
+                    if !essence1.inputs().iter().any(|input| match input {
+                        Input::Utxo(utxo) => utxo.output_id().transaction_id() == &tx_id_first,
+                        _ => false,
+                    }) {
                         return Err(crate::error::Error::InvalidMessageChain);
                     }
                 }
             } else {
                 return Err(crate::error::Error::InvalidMessageChain);
             }
-        } else if let Payload::Transaction(tx) = message.payload().as_ref().unwrap() {
-            if OutputId::new(tx.id(), 0).expect("Can't get output id") != proof.latest_output_id {
+        } else if let Some(Payload::Transaction(tx)) = message.payload() {
+            if tx.id() != *proof.latest_output_id.transaction_id() {
                 return Err(crate::error::Error::InvalidLatestUTXO);
             }
         } else {
             return Err(crate::error::Error::NoTransactionPayload);
         }
     }
-    let spent_status = is_output_spent(&proof.latest_output_id, node_url).await?;
-    Ok(!spent_status)
+    // 3. check if latest output is known by the node
+    Ok(is_output_known(iota_client, &proof.latest_output_id).await)
+}
+
+fn get_indexation_data(message: &Message) -> Result<String> {
+    match message.payload() {
+        Some(Payload::Transaction(tx_payload)) => {
+            let Essence::Regular(essence) = tx_payload.essence();
+            match essence.payload() {
+                Some(Payload::Indexation(indexation_payload)) => {
+                    Ok(String::from_utf8(indexation_payload.data().to_vec())?)
+                }
+                _ => Err(crate::error::Error::NoIndexationPayload),
+            }
+        }
+        _ => Err(crate::error::Error::NoTransactionPayload),
+    }
 }
