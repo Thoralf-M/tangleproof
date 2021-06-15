@@ -1,4 +1,4 @@
-use crate::chronist::TransactionData;
+use crate::chronist::InclusionData;
 use crate::error::Result;
 use crate::inclusion_proof::InclusionProof;
 use crate::iota_api::is_output_known;
@@ -10,66 +10,76 @@ use iota_client::Client;
 // 2. check for each transaction if one output is used as input in the next transaction
 // 3. check if latest output is known by the node
 pub async fn is_valid_proof(iota_client: &Client, proof: &InclusionProof) -> Result<bool> {
-    if proof.transaction_messages.is_empty() {
-        return Err(crate::error::Error::NoMessage);
-    }
     // 1. check if message id is part of the first indexation payload
     let msg_id = proof.message.id().0;
-    let data = get_indexation_data(
+    let inclusion_data = get_inclusion_data(
         proof
             .transaction_messages
             .first()
             .ok_or(crate::error::Error::NoMessage)?,
     )?;
-    let transaction_data: TransactionData = serde_json::from_str(&data)?;
-    if !transaction_data.message_ids.contains(&msg_id) {
+    if !inclusion_data.message_ids.contains(&msg_id) {
         return Err(crate::error::Error::MessageIdNotInTransaction);
     }
     // 2. check for each transaction if one output is used as input in the next transaction
-    let last_index = proof.transaction_messages.len() - 1;
-    for (index, message) in proof.transaction_messages.iter().enumerate() {
-        if last_index != index {
-            // Check if output from previous tx is used as input in next tx
-            if let Some(Payload::Transaction(tx)) = message.payload() {
-                if let Some(Payload::Transaction(index_plus_one_tx)) =
-                    &proof.transaction_messages[index + 1].payload()
-                {
-                    let tx_id_first = tx.id();
-                    let Essence::Regular(essence1) = index_plus_one_tx.essence();
+    validate_transaction_chain(&proof.transaction_messages)?;
 
-                    if !essence1.inputs().iter().any(|input| match input {
-                        Input::Utxo(utxo) => utxo.output_id().transaction_id() == &tx_id_first,
-                        _ => false,
-                    }) {
-                        return Err(crate::error::Error::InvalidMessageChain);
-                    }
-                }
-            } else {
-                return Err(crate::error::Error::InvalidMessageChain);
-            }
-        } else if let Some(Payload::Transaction(tx)) = message.payload() {
-            if tx.id() != *proof.latest_output_id.transaction_id() {
-                return Err(crate::error::Error::InvalidLatestUTXO);
-            }
-        } else {
-            return Err(crate::error::Error::NoTransactionPayload);
+    // Check if latest_output_id is part of the latest transaction
+    if let Some(Payload::Transaction(tx)) = proof
+        .transaction_messages
+        .last()
+        // Save to unwrap because we checked already if it's empty
+        .ok_or(crate::error::Error::NoMessage)?
+        .payload()
+    {
+        if tx.id() != *proof.latest_output_id.transaction_id() {
+            return Err(crate::error::Error::InvalidLatestUTXO);
         }
+    } else {
+        return Err(crate::error::Error::NoTransactionPayload);
     }
     // 3. check if latest output is known by the node
     Ok(is_output_known(iota_client, &proof.latest_output_id).await)
 }
 
-fn get_indexation_data(message: &Message) -> Result<String> {
+fn get_inclusion_data(message: &Message) -> Result<InclusionData> {
     match message.payload() {
         Some(Payload::Transaction(tx_payload)) => {
             let Essence::Regular(essence) = tx_payload.essence();
             match essence.payload() {
                 Some(Payload::Indexation(indexation_payload)) => {
-                    Ok(String::from_utf8(indexation_payload.data().to_vec())?)
+                    let data = String::from_utf8(indexation_payload.data().to_vec())?;
+                    let transaction_data: InclusionData = serde_json::from_str(&data)?;
+                    Ok(transaction_data)
                 }
                 _ => Err(crate::error::Error::NoIndexationPayload),
             }
         }
         _ => Err(crate::error::Error::NoTransactionPayload),
     }
+}
+
+// Checks for each transaction if one output is used as input in the next transaction
+fn validate_transaction_chain(transaction_messages: &[Message]) -> Result<()> {
+    // Check if output from previous tx is used as input in next tx
+    for messages in transaction_messages.windows(2) {
+        let tx = match messages[0].payload() {
+            Some(Payload::Transaction(tx)) => tx,
+            _ => return Err(crate::error::Error::NoTransactionPayload),
+        };
+        let next_tx = match messages[1].payload() {
+            Some(Payload::Transaction(tx)) => tx,
+            _ => return Err(crate::error::Error::NoTransactionPayload),
+        };
+
+        let Essence::Regular(next_essence) = next_tx.essence();
+
+        if !next_essence.inputs().iter().any(|input| match input {
+            Input::Utxo(utxo) => utxo.output_id().transaction_id() == &tx.id(),
+            _ => false,
+        }) {
+            return Err(crate::error::Error::InvalidMessageChain);
+        }
+    }
+    Ok(())
 }

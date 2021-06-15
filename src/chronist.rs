@@ -34,7 +34,7 @@ pub struct Chronist {
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
-pub struct TransactionData {
+pub struct InclusionData {
     pub time: DateTime<Utc>,
     pub message_ids: Vec<MessageId>,
 }
@@ -105,7 +105,11 @@ impl Chronist {
                             .read()
                             .await
                             .clone()
-                            .into_iter()
+                            .iter()
+                            // Up to 100 message ids per transaction to stay below 10000 bytes length for
+                            // faster PoW https://gist.github.com/Wollac/82d211781535ad95d39c7db7ae093204
+                            .take(100)
+                            .cloned()
                             .collect();
                         match self.send_transaction(message_ids.clone()).await {
                             Ok(r) => {
@@ -130,7 +134,7 @@ impl Chronist {
             u64::from_str(&db.get(TRANSACTION_INDEX_KEY).await?)?
         };
 
-        let tx_data = TransactionData {
+        let inclusion_data = InclusionData {
             time: Utc::now(),
             message_ids,
         };
@@ -176,7 +180,7 @@ impl Chronist {
         let transaction_message = send_transaction(
             &client,
             CHRONIST_INDEX,
-            &serde_json::to_string(&tx_data)?,
+            &serde_json::to_string(&inclusion_data)?,
             Some(inputs),
             &self.seed,
             latest_transaction_index,
@@ -207,7 +211,7 @@ impl Chronist {
 
         // store message ids and update inclusion_position
         let mut message_ids = self.message_ids.write().await;
-        for message_id in tx_data.message_ids {
+        for message_id in inclusion_data.message_ids {
             message_ids.insert(message_id.to_owned());
             // update inclusion_position
             let mut message_without_inclusion_position: MessageWrapper =

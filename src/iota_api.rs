@@ -97,7 +97,7 @@ pub async fn split_funds(client: &Client, rows: u64, seed: &str) -> Result<Messa
         message_builder =
             message_builder.with_output(&addresses_from_seed[i as usize], 1_000_000)?;
     }
-    let message = message_builder.finish().await?;
+    let message = message_builder.with_index("Chronist").finish().await?;
 
     println!(
         "Split transaction sent: https://explorer.iota.org/testnet/message/{}",
