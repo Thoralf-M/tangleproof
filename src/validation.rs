@@ -5,10 +5,10 @@ use crate::iota_api::is_output_known;
 use iota_client::bee_message::prelude::{Essence, Input, Message, Payload};
 use iota_client::Client;
 
-/// Function to validate the structure of the proof and check if the latest output is unspent
-// 1. check if message id is part of the first indexation payload
-// 2. check for each transaction if one output is used as input in the next transaction
-// 3. check if latest output is known by the node
+/// Function to validate the structure of the proof and check if the latest output is known
+// 1. Calculate message id and check if it's part of the indexation payload of the first transaction
+// 2. Check for each transaction if one output is used as input in the next transaction
+// 3. Check if latest output is known by a node
 pub async fn is_valid_proof(iota_client: &Client, proof: &InclusionProof) -> Result<bool> {
     // 1. check if message id is part of the first indexation payload
     let msg_id = proof.message.id().0;

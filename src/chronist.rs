@@ -2,10 +2,13 @@ use crate::error::Result;
 use crate::iota_api::send_transaction;
 use crate::storage::RocksdbStorage;
 use chrono::{DateTime, Utc};
+use iota_client::bee_message::address::Address;
+use iota_client::bee_message::output::Output;
 use iota_client::bee_message::output::OutputId;
 use iota_client::bee_message::prelude::{Essence, Message, Payload};
 use iota_client::bee_message::MessageId;
 use iota_client::Client;
+use iota_client::Seed;
 use serde::{Deserialize, Serialize};
 use std::collections::HashSet;
 use std::str::FromStr;
@@ -22,7 +25,7 @@ const CHRONIST_INDEX: &str = "Chronist";
 const INCLUSION_INDEX: &str = "inclusion_index";
 
 pub(crate) const INCLUSION_STRUCTURE_ROWS: u64 = 10;
-pub(crate) const INCLUSION_STRUCTURE_SECTION_LENGTH: u64 = 4;
+pub(crate) const INCLUSION_STRUCTURE_SECTION_LENGTH: u64 = 3;
 
 pub struct Chronist {
     pub(crate) db: Arc<Mutex<RocksdbStorage>>,
@@ -64,13 +67,13 @@ impl Chronist {
         if database.get(TRANSACTION_INDEX_KEY).await.is_err() {
             let client = iota_client.read().await;
             crate::iota_api::split_funds(&client, INCLUSION_STRUCTURE_ROWS, seed).await?;
-            database.set(TRANSACTION_INDEX_KEY, "0".to_string()).await?;
+            database.set(TRANSACTION_INDEX_KEY, "1".to_string()).await?;
+            database.set(MESSAGE_IDS_KEY, "[]".to_string()).await?;
         }
 
-        let message_ids = match database.get(MESSAGE_IDS_KEY).await {
-            Ok(ids) => serde_json::from_str(&ids)?,
-            Err(_) => HashSet::new(),
-        };
+        let message_ids: HashSet<MessageId> =
+            serde_json::from_str(&database.get(MESSAGE_IDS_KEY).await?)?;
+
         let chronist = Self {
             db,
             iota_client,
@@ -151,7 +154,18 @@ impl Chronist {
                 INCLUSION_STRUCTURE_SECTION_LENGTH,
             );
 
+        let client = self.iota_client.read().await;
+        let addresses: Vec<Address> = client
+            .get_addresses(&Seed::from_bytes(&hex::decode(&self.seed)?))
+            .with_range(0..crate::chronist::INCLUSION_STRUCTURE_ROWS as usize)
+            .get_all_raw()
+            .await?
+            .into_iter()
+            .filter(|a| !a.1)
+            .map(|a| a.0)
+            .collect();
         let mut inputs = Vec::new();
+        println!("input_indexes {:?}", input_indexes);
         for input in input_indexes {
             let position_data: UtxoData = serde_json::from_str(
                 &database
@@ -166,9 +180,30 @@ impl Chronist {
                 if essence.outputs().len() < input.1 as usize {
                     return Err(crate::error::Error::UtxoInputNotFound);
                 }
-                // temporary panics if output doesn't exists
-                let _output = essence.outputs()[input.1 as usize].clone();
-                inputs.push(OutputId::new(tx.id(), input.1 as u16)?);
+                // todo return error if output doesn't exists
+                let output_position = essence
+                    .outputs()
+                    .iter()
+                    .position(|output| {
+                        let address = match output {
+                            Output::Treasury(_) => {
+                                panic!("Treasury output is not supported");
+                            }
+                            Output::SignatureLockedSingle(ref r) => match &r.address() {
+                                Address::Ed25519(addr) => Address::Ed25519(*addr),
+                            },
+                            Output::SignatureLockedDustAllowance(ref r) => match &r.address() {
+                                Address::Ed25519(addr) => Address::Ed25519(*addr),
+                            },
+                        };
+                        addresses[input.1 as usize] == address
+                    })
+                    .expect("No output with address");
+                println!(
+                    "input address {}",
+                    addresses[input.1 as usize].to_bech32("atoi")
+                );
+                inputs.push(OutputId::new(tx.id(), output_position as u16)?);
             } else {
                 return Err(crate::error::Error::UtxoInputNotFound);
             }
@@ -176,7 +211,6 @@ impl Chronist {
         drop(database);
 
         // Send new transaction with message
-        let client = self.iota_client.read().await;
         let transaction_message = send_transaction(
             &client,
             CHRONIST_INDEX,
@@ -236,6 +270,9 @@ impl Chronist {
             .set(TRANSACTION_INDEX_KEY, latest_transaction_index.to_string())
             .await?;
 
+        let _ = client
+            .retry_until_included(&transaction_message.id().0, None, None)
+            .await?;
         Ok(transaction_message.id().0)
     }
 

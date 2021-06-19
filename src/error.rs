@@ -5,7 +5,8 @@ use warp::reject::Reject;
 pub enum Error {
     #[error("serde_json Error: {0}")]
     DecodeJSON(#[from] serde_json::Error),
-    #[error("Iota_client Error")]
+    #[error(transparent)]
+    // #[error("Iota_client Error")]
     IotaClientError(#[from] iota_client::Error),
     #[error("Bee_message Error")]
     BeeMessageError(#[from] iota_client::bee_message::Error),

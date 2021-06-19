@@ -4,6 +4,7 @@ use iota_client::{
     node::OutputsOptions,
     Client, Seed,
 };
+use tokio::time::sleep;
 
 const IOTA_AMOUNT: u64 = 1_000_000;
 
@@ -40,17 +41,23 @@ pub async fn send_transaction(
         crate::chronist::INCLUSION_STRUCTURE_ROWS,
         crate::chronist::INCLUSION_STRUCTURE_SECTION_LENGTH,
     );
+    println!("inclusion_position {}", inclusion_position);
     for row in 0..row_for_position + 1 {
-        println!("address {}", addresses[row as usize]);
+        println!("row {} output_address {}", row, addresses[row as usize]);
         message_builder =
             message_builder.with_output(&addresses[row as usize].clone(), IOTA_AMOUNT)?;
     }
+    // For first tx in row
     if inclusion_position
         == crate::inclusion_structure::get_row_starting_position(
             row_for_position,
             crate::chronist::INCLUSION_STRUCTURE_SECTION_LENGTH,
         )
     {
+        println!(
+            "first time row {} inclusion_position: {}",
+            row_for_position, inclusion_position
+        );
         let outputs = client
             .get_address()
             .outputs(
@@ -63,14 +70,13 @@ pub async fn send_transaction(
     }
 
     if let Some(inputs) = inputs {
+        println!("Inputs: {:?}", inputs);
         for input in inputs {
             message_builder = message_builder.with_input(UtxoInput::from(input));
         }
     }
     let message = message_builder.finish().await?;
-    let _ = client
-        .retry_until_included(&message.id().0, None, None)
-        .await?;
+
     Ok(message)
 }
 
@@ -78,19 +84,16 @@ pub async fn send_transaction(
 pub async fn split_funds(client: &Client, rows: u64, seed: &str) -> Result<Message> {
     let seed = Seed::from_bytes(&hex::decode(seed)?);
 
-    let total_balance = client.get_balance(&seed).finish().await?;
-
-    if total_balance > rows * 1_000_000 {
-        return Err(crate::error::Error::NotEnoughFunds);
-    }
-
     let addresses_from_seed = client
         .get_addresses(&seed)
         .with_range(0..rows as usize)
         .finish()
         .await?;
 
-    println!("Send iotas to {}", addresses_from_seed[0]);
+    while client.get_balance(&seed).finish().await? < rows * 1_000_000 {
+        println!("Send {}i to {}", rows * 1_000_000, addresses_from_seed[0]);
+        sleep(std::time::Duration::from_secs(10)).await;
+    }
 
     let mut message_builder = client.message().with_seed(&seed);
     for i in 0..rows {

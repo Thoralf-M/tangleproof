@@ -1,137 +1,20 @@
-use iota_client::{Client, MqttEvent, Result, Topic};
-use serde::{Deserialize, Serialize};
-use std::sync::{mpsc::channel, Arc, Mutex};
-use tangleproof::chronist::Chronist;
+use iota_client::Client;
+use std::env;
+use tangleproof::{chronist::Chronist, error::Result, server};
+extern crate dotenv;
+use dotenv::dotenv;
+
 #[tokio::main]
 async fn main() -> Result<()> {
+    dotenv().ok();
+
     let chronist = Chronist::new(
-        "testdb",
-        "https://chrysalis-nodes.iota.org",
-        "256a818b2aac458941f7274985a410e57fb750f3a3a67969ece5bd9ae7eef5b2",
+        &env::var("DB_PATH").unwrap(),
+        &env::var("IOTA_NODE").unwrap(),
+        &Client::mnemonic_to_hex_seed(&env::var("MNEMONIC").unwrap())?,
     )
-    .await
-    .unwrap();
+    .await?;
 
-    let mut iota = Client::builder()
-        .with_node("https://chrysalis-nodes.iota.org")?
-        .finish()
-        .await?;
-
-    let (tx, rx) = channel();
-    let tx = Arc::new(Mutex::new(tx));
-
-    let mut event_rx = iota.mqtt_event_receiver();
-    tokio::spawn(async move {
-        while event_rx.changed().await.is_ok() {
-            let event = event_rx.borrow();
-            if *event == MqttEvent::Disconnected {
-                println!("mqtt disconnected");
-                std::process::exit(1);
-            }
-        }
-    });
-
-    iota.subscriber()
-        .with_topics(vec![Topic::new("messages/referenced").unwrap()])
-        .subscribe(move |event| match event.topic.as_str() {
-            "messages/referenced" => {
-                #[derive(Serialize, Deserialize, Debug)]
-                pub struct Referenced {
-                    #[serde(rename = "messageId")]
-                    pub message_id: String,
-                }
-                let message: Referenced = serde_json::from_str(&event.payload).unwrap();
-                tx.lock().unwrap().send(message.message_id).unwrap();
-            }
-            _ => println!("{:?}", event),
-        })
-        .await
-        .unwrap();
-
-    let chronist_ = Arc::new(tokio::sync::RwLock::new(chronist));
-    for outer in 0..2000 {
-        let mut tasks = Vec::new();
-        for _ in 0..50 {
-            let message_id = rx.recv().unwrap();
-            let chronist__ = chronist_.clone();
-            tasks.push(async move {
-                tokio::spawn(async move {
-                    let _ = chronist__
-                        .read()
-                        .await
-                        .save_message(&message_id)
-                        .await
-                        .unwrap();
-                })
-                .await
-            });
-        }
-        println!("{}", outer);
-        let _results = futures::future::try_join_all(tasks)
-            .await
-            .expect("failed to sync addresses");
-
-        if outer % 10 == 0 {
-            let tips = chronist_
-                .read()
-                .await
-                .iota_client
-                .read()
-                .await
-                .get_tips()
-                .await
-                .unwrap();
-
-            let now = std::time::Instant::now();
-            chronist_
-                .read()
-                .await
-                .save_message(&tips[0].to_string())
-                .await
-                .unwrap();
-            println!("save_message took: {:.2?}", now.elapsed());
-            let _msg = chronist_
-                .read()
-                .await
-                .get_message(&tips[0].to_string())
-                .await
-                .unwrap();
-            println!("get_message took: {:.2?}", now.elapsed());
-            let message_ids = chronist_.read().await.get_message_ids().await.unwrap();
-            println!("message_ids len: {}", message_ids.len());
-            println!("message_ids took: {:.2?}", now.elapsed());
-        }
-    }
-
-    let tips = chronist_
-        .read()
-        .await
-        .iota_client
-        .read()
-        .await
-        .get_tips()
-        .await
-        .unwrap();
-
-    let now = std::time::Instant::now();
-    chronist_
-        .read()
-        .await
-        .save_message(&tips[0].to_string())
-        .await
-        .unwrap();
-    println!("save_message took: {:.2?}", now.elapsed());
-    let _msg = chronist_
-        .read()
-        .await
-        .get_message(&tips[0].to_string())
-        .await
-        .unwrap();
-    println!("get_message took: {:.2?}", now.elapsed());
-
-    let message_ids = chronist_.read().await.get_message_ids().await.unwrap();
-    assert_eq!(message_ids.len(), 10000);
-
-    iota.subscriber().disconnect().await.unwrap();
+    server::start(chronist, 3030).await?;
     Ok(())
 }

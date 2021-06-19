@@ -7,7 +7,7 @@ edition = "2018"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-iota-client = {git = "https://github.com/iotaledger/iota.rs", rev = "eda30070a820cee336395a84957e29f0642ceaff", features = ["mqtt"] }
+iota-client = {git = "https://github.com/iotaledger/iota.rs", rev = "ae253938ab6725a59da05ce97d0f2c9054f38706", features = ["mqtt"] }
 # iota-client = { path = "../iota.rs/iota-client"}
 hex = "0.4"
 serde = { version = "1.0", features = ["derive"] }
@@ -21,3 +21,6 @@ dotenv = "0.15.0"
 rocksdb = { git="https://github.com/iotaledger/rust-rocksdb", rev = "70f2a53529ecc1853a2c025cec7f9d00bd50352c", default-features = false, features = ["lz4"] }
 futures = "0.3"
 chrono = { version = "0.4", features = ["serde"]}
+
+[dev-dependencies]
+reqwest = { version = "0.11", features = ["json"] }

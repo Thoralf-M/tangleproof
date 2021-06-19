@@ -12,7 +12,7 @@ use tangleproof::inclusion_structure::*;
 
 fn main() {
     // row == utxo_amount == required amount of Mi
-    let rows = 10;
+    let rows = 2;
     // transactions from the same utxo until one of the next row will be used
     let section_length: u64 = 3;
     println!(
@@ -27,14 +27,17 @@ fn main() {
         );
     }
     println!(
-        "Total proof transaction amount: {}",
-        section_length * rows + section_length.pow(rows as u32)
+        "Longest proof path (without more than section length txs before a new row starts): {}",
+        (rows + 1) * section_length
     );
     println!(
-        "Total proof transaction amount: {}",
+        "Total proof transaction amount (without increasing max proof length): {}",
+        get_row_starting_position(rows + 1, section_length) - 1
+    );
+    println!(
+        "Starting position for last row: {}",
         get_row_starting_position(rows, section_length)
     );
-    println!("{:?}", get_path(0, 0, rows, section_length));
 
     for row in 0..rows {
         println!(

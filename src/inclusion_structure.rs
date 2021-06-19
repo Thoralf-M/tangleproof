@@ -13,7 +13,7 @@ pub fn get_previous_indexes_for_each_row_at_position(
     rows: u64,
     section_length: u64,
 ) -> Vec<(u64, u64)> {
-    if position == 0 {
+    if position == 1 {
         return vec![];
     }
     // (position, row), with position for row 0 inserted

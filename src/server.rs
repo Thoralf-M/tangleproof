@@ -11,6 +11,11 @@ use warp::{Rejection, Reply};
 /// Start the API server
 pub async fn start(chronist: Chronist, port: u16) -> Result<()> {
     let chronist = Arc::new(RwLock::new(chronist));
+    // GET /
+    let api_endpoints = warp::path("endpoints").map(|| {
+        "Available endpoints:\nGET /proof/create/:messageId\nGET /proof/create/:messageId\nPOST /proof/is-valid/\nGET /messages/list\nGET /messages/:messageId"
+    });
+
     // GET /proof/create/:messageId
     let create = warp::path("proof")
         .and(path("create"))
@@ -53,7 +58,7 @@ pub async fn start(chronist: Chronist, port: u16) -> Result<()> {
         move |m| messages_get_handler(m, chronist_.clone())
     });
 
-    let routes = is_valid.or(create.or(get).or(messages).or(message));
+    let routes = is_valid.or(create.or(get).or(messages).or(message).or(api_endpoints));
     warp::serve(routes).run(([127, 0, 0, 1], port)).await;
     Ok(())
 }

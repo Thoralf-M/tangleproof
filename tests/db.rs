@@ -9,12 +9,12 @@ async fn db() {
     .await
     .unwrap();
 
-    let tips = chronist.iota_client.get_tips().await.unwrap();
+    let tips = chronist.iota_client.read().await.get_tips().await.unwrap();
 
     chronist.save_message(&tips[0].to_string()).await.unwrap();
     let msg = chronist.get_message(&tips[0].to_string()).await.unwrap();
     println!("{:?}", msg);
-    assert_eq!(msg.id().0, tips[0]);
+    assert_eq!(msg.message.id().0, tips[0]);
     let message_ids = chronist.get_message_ids().await.unwrap();
     println!("{:?}", message_ids);
 }
@@ -86,7 +86,15 @@ async fn spam() -> Result<()> {
             .await
             .expect("failed to sync addresses");
 
-        let tips = chronist_.read().await.iota_client.get_tips().await.unwrap();
+        let tips = chronist_
+            .read()
+            .await
+            .iota_client
+            .read()
+            .await
+            .get_tips()
+            .await
+            .unwrap();
 
         let now = std::time::Instant::now();
         chronist_
@@ -107,7 +115,15 @@ async fn spam() -> Result<()> {
         println!("message_ids len: {}", message_ids.len());
     }
 
-    let tips = chronist_.read().await.iota_client.get_tips().await.unwrap();
+    let tips = chronist_
+        .read()
+        .await
+        .iota_client
+        .read()
+        .await
+        .get_tips()
+        .await
+        .unwrap();
 
     let now = std::time::Instant::now();
     chronist_
