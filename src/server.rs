@@ -1,19 +1,22 @@
-use crate::chronist::Chronist;
-use crate::error::Result;
-use iota_client::bee_message::MessageId;
-use iota_client::bee_rest_api::types::dtos::MessageDto;
+use crate::{
+    chronist::{Chronist, UtxoData, INCLUSION_INDEX, TRANSACTION_MESSAGE_KEY},
+    error::Result,
+};
+use iota_client::{
+    bee_message::{Message, MessageId},
+    bee_rest_api::types::dtos::MessageDto,
+};
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
 use tokio::sync::RwLock;
-use warp::{path, Filter};
-use warp::{Rejection, Reply};
+use warp::{path, Filter, Rejection, Reply};
 
 /// Start the API server
 pub async fn start(chronist: Chronist, port: u16) -> Result<()> {
     let chronist = Arc::new(RwLock::new(chronist));
     // GET /
-    let api_endpoints = warp::path("endpoints").map(|| {
-        "Available endpoints:\nGET /proof/create/:messageId\nGET /proof/create/:messageId\nPOST /proof/is-valid/\nGET /messages/list\nGET /messages/:messageId"
+    let api_endpoints = warp::any().map(|| {
+        "Available endpoints:\nGET /proof/create/:messageId\nGET /proof/create/:messageId\nPOST /proof/is-valid/\nGET /messages/list\nGET /messages/:messageId\nGET /messages/position/:index"
     });
 
     // GET /proof/create/:messageId
@@ -58,7 +61,21 @@ pub async fn start(chronist: Chronist, port: u16) -> Result<()> {
         move |m| messages_get_handler(m, chronist_.clone())
     });
 
-    let routes = is_valid.or(create.or(get).or(messages).or(message).or(api_endpoints));
+    // GET /messages/position/:index
+    let message_position = warp::path("messages")
+        .and(path("position"))
+        .and(warp::path::param())
+        .and_then({
+            let chronist_ = chronist.clone();
+            move |p| messages_position_get_handler(p, chronist_.clone())
+        });
+
+    let routes = is_valid.or(create
+        .or(get)
+        .or(messages)
+        .or(message)
+        .or(message_position)
+        .or(api_endpoints));
     warp::serve(routes).run(([127, 0, 0, 1], port)).await;
     Ok(())
 }
@@ -69,8 +86,7 @@ pub async fn proof_creation_handler(
 ) -> std::result::Result<impl Reply, Rejection> {
     let chronist = chronist.write().await;
     chronist.save_message(&message_id).await?;
-    println!("message_id: {}", message_id);
-    //todo create proof
+    println!("proof_creation_handler message_id: {}", message_id);
     Ok(warp::reply::json(&MessageIdResponse { message_id }))
 }
 
@@ -78,15 +94,9 @@ pub async fn proof_get_handler(
     message_id: String,
     chronist: Arc<RwLock<Chronist>>,
 ) -> std::result::Result<impl Reply, Rejection> {
-    println!("message_id: {}", message_id);
+    println!("proof_get_handler message_id: {}", message_id);
     let chronist = chronist.read().await;
     let proof = chronist.get_message_proof(&message_id).await?;
-    //todo get proof
-    // let message_dto = match serde_json::to_string(&MessageDto::from(&message)) {
-    //     Ok(m) => m,
-    //     Err(e) => return Err(warp::reject::custom::<crate::error::Error>(e.into())),
-    // };
-
     Ok(warp::reply::json(&proof))
 }
 
@@ -95,13 +105,7 @@ pub async fn proof_is_valid_handler(
     chronist: Arc<RwLock<Chronist>>,
 ) -> std::result::Result<impl Reply, Rejection> {
     let chronist = chronist.read().await;
-    // let inclusion_proof: crate::inclusion_proof::InclusionProof = match serde_json::from_str(&proof)
-    // {
-    //     Ok(proof) => proof,
-    //     Err(e) => return Err(warp::reject::custom::<crate::error::Error>(e.into())),
-    // };
-    let client = chronist.iota_client.read().await;
-    let is_valid = inclusion_proof.is_valid(&client).await?;
+    let is_valid = inclusion_proof.is_valid(&chronist.iota_client).await?;
     println!("Requested proof is valid: {}", is_valid);
 
     Ok(warp::reply::json(&is_valid))
@@ -116,6 +120,7 @@ pub async fn list_messages_handler(
         &message_ids.iter().collect::<Vec<&MessageId>>(),
     ))
 }
+
 pub async fn messages_get_handler(
     message_id: String,
     chronist: Arc<RwLock<Chronist>>,
@@ -126,6 +131,64 @@ pub async fn messages_get_handler(
     let response = MessageResponse {
         data: MessageDto::from(&message.message),
         inclusion_position: message.inclusion_position,
+    };
+    Ok(warp::reply::json(&response))
+}
+use warp::reject;
+
+#[derive(Debug, Clone)]
+pub(crate) enum CustomRejection {
+    // Forbidden,
+    BadRequest(String),
+    // NotFound(String),
+    // ServiceUnavailable(String),
+    // InternalError,
+    // StorageBackend,
+}
+impl warp::reject::Reject for CustomRejection {}
+pub async fn messages_position_get_handler(
+    position: u64,
+    chronist: Arc<RwLock<Chronist>>,
+) -> std::result::Result<impl Reply, Rejection> {
+    let chronist = chronist.read().await;
+    let position_data: UtxoData = match serde_json::from_str(
+        &chronist
+            .db
+            .lock()
+            .await
+            .get(&format!("{}{}", INCLUSION_INDEX, position))
+            .await?,
+    ) {
+        Ok(id) => id,
+        Err(_) => {
+            return Err(reject::custom(CustomRejection::BadRequest(
+                "Couldn't decode for message".to_string(),
+            )))
+        }
+    };
+    let message: Message = match serde_json::from_str(
+        &chronist
+            .db
+            .lock()
+            .await
+            .get(&format!(
+                "{}{}",
+                TRANSACTION_MESSAGE_KEY,
+                position_data.message_id.to_string()
+            ))
+            .await?,
+    ) {
+        Ok(message) => message,
+        Err(_) => {
+            return Err(reject::custom(CustomRejection::BadRequest(
+                "Couldn't decode for message".to_string(),
+            )))
+        }
+    };
+
+    let response = MessageResponse {
+        data: MessageDto::from(&message),
+        inclusion_position: Some(position_data.position_index),
     };
     Ok(warp::reply::json(&response))
 }
@@ -157,18 +220,6 @@ pub struct MessageResponse {
 //             ))),
 //         }
 //     })
-// }
-
-// use warp::reject::Reject;
-
-// #[derive(Debug, Clone)]
-// pub(crate) enum CustomRejection {
-//     Forbidden,
-//     BadRequest(String),
-//     NotFound(String),
-//     ServiceUnavailable(String),
-//     InternalError,
-//     StorageBackend,
 // }
 
 // #[derive(Serialize)]

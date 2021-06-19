@@ -1,6 +1,7 @@
 pub type Result<T, E = Error> = anyhow::Result<T, E>;
 use warp::reject::Reject;
-/// Error type of the tangleproof lib
+
+/// Error of the tangleproof lib
 #[derive(Debug, thiserror::Error)]
 pub enum Error {
     #[error("serde_json Error: {0}")]
@@ -26,8 +27,6 @@ pub enum Error {
     NoMessage,
     #[error("Can't convert Message to or from MessageDto")]
     ConvertMessage,
-    #[error("Proof has no UTXO")]
-    NoUtxo,
     #[error("Messages don't reference each other")]
     InvalidMessageChain,
     #[error("Latest message doesn't have the latest UTXO")]

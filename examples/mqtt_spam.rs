@@ -11,7 +11,7 @@ extern crate dotenv;
 use dotenv::dotenv;
 use reqwest;
 
-/// In this example we will save messages from mqtt
+/// In this example we will save random messages from mqtt
 
 #[tokio::main]
 async fn main() -> Result<()> {
@@ -23,15 +23,15 @@ async fn main() -> Result<()> {
         &"256a818b2aac458941f2274945a410e57fb750f3a3a67969ece5bd9ae7eef5b2",
     )
     .await?;
-
     tokio::spawn(async move {
         server::start(chronist, 3030).await.unwrap();
     });
-
     let mut iota = Client::builder()
-        .with_node("https://api.hornet-0.testnet.chrysalis2.com/")?
+        .with_node("https://api.hornet-0.testnet.chrysalis2.com/")
+        .unwrap()
         .finish()
-        .await?;
+        .await
+        .unwrap();
 
     let (tx, rx) = channel();
     let tx = Arc::new(Mutex::new(tx));
@@ -65,56 +65,35 @@ async fn main() -> Result<()> {
         .unwrap();
 
     for outer in 0..200 {
-        println!("outer loop {}", outer);
+        println!("Loop round {}", outer);
         let mut tasks = Vec::new();
-        for _ in 0..10 {
-            let message_id = rx.recv().unwrap();
-            tasks.push(async move {
-                tokio::spawn(async move {
-                    let _resp =
-                        reqwest::get(format!("http://localhost:3030/proof/create/{}", message_id))
-                            .await
-                            .unwrap()
-                            .json::<MessageIdResponse>()
-                            .await
-                            .unwrap();
-                    // println!("{:#?}", resp);
-                })
-                .await
-            });
+        for inner in 0..20 {
+            if inner % 5 == 0 {
+                let message_id = rx.recv().unwrap();
+                tasks.push(async move {
+                    tokio::spawn(async move {
+                        let _resp = reqwest::get(format!(
+                            "http://localhost:3030/proof/create/{}",
+                            message_id
+                        ))
+                        .await
+                        .unwrap()
+                        .json::<MessageIdResponse>()
+                        .await
+                        .unwrap();
+                        // println!("{:#?}", resp);
+                    })
+                    .await
+                });
+            }
         }
         let _results = futures::future::try_join_all(tasks)
             .await
             .expect("failed to sync addresses");
 
-        sleep(Duration::from_secs(10)).await;
+        sleep(Duration::from_secs(3)).await;
 
         if outer % 10 == 0 {
-            // let tips = chronist_
-            //     .read()
-            //     .await
-            //     .iota_client
-            //     .read()
-            //     .await
-            //     .get_tips()
-            //     .await
-            //     .unwrap();
-
-            // let now = std::time::Instant::now();
-            // chronist_
-            //     .read()
-            //     .await
-            //     .save_message(&tips[0].to_string())
-            //     .await
-            //     .unwrap();
-            // println!("save_message took: {:.2?}", now.elapsed());
-            // let _msg = chronist_
-            //     .read()
-            //     .await
-            //     .get_message(&tips[0].to_string())
-            //     .await
-            //     .unwrap();
-            // println!("get_message took: {:.2?}", now.elapsed());
             let message_ids = reqwest::get("http://localhost:3030/messages/list")
                 .await
                 .unwrap()
@@ -122,39 +101,8 @@ async fn main() -> Result<()> {
                 .await
                 .unwrap();
             println!("message_ids len: {}", message_ids.len());
-            // println!("message_ids took: {:.2?}", now.elapsed());
         }
     }
-
-    // let tips = chronist_
-    //     .read()
-    //     .await
-    //     .iota_client
-    //     .read()
-    //     .await
-    //     .get_tips()
-    //     .await
-    //     .unwrap();
-
-    // let now = std::time::Instant::now();
-    // chronist_
-    //     .read()
-    //     .await
-    //     .save_message(&tips[0].to_string())
-    //     .await
-    //     .unwrap();
-    // println!("save_message took: {:.2?}", now.elapsed());
-    // let _msg = chronist_
-    //     .read()
-    //     .await
-    //     .get_message(&tips[0].to_string())
-    //     .await
-    //     .unwrap();
-    // println!("get_message took: {:.2?}", now.elapsed());
-
-    // let message_ids = chronist_.read().await.get_message_ids().await.unwrap();
-    // assert_eq!(message_ids.len(), 10000);
-
     iota.subscriber().disconnect().await.unwrap();
 
     Ok(())

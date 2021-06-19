@@ -1,5 +1,6 @@
 use crate::error::Result;
 use iota_client::{
+    api::ClientMessageBuilder,
     bee_message::prelude::{Message, OutputId, UtxoInput},
     node::OutputsOptions,
     Client, Seed,
@@ -41,23 +42,17 @@ pub async fn send_transaction(
         crate::chronist::INCLUSION_STRUCTURE_ROWS,
         crate::chronist::INCLUSION_STRUCTURE_SECTION_LENGTH,
     );
-    println!("inclusion_position {}", inclusion_position);
     for row in 0..row_for_position + 1 {
-        println!("row {} output_address {}", row, addresses[row as usize]);
         message_builder =
             message_builder.with_output(&addresses[row as usize].clone(), IOTA_AMOUNT)?;
     }
-    // For first tx in row
+    // For first tx in row get outputs from the address
     if inclusion_position
         == crate::inclusion_structure::get_row_starting_position(
             row_for_position,
             crate::chronist::INCLUSION_STRUCTURE_SECTION_LENGTH,
         )
     {
-        println!(
-            "first time row {} inclusion_position: {}",
-            row_for_position, inclusion_position
-        );
         let outputs = client
             .get_address()
             .outputs(
@@ -65,18 +60,27 @@ pub async fn send_transaction(
                 OutputsOptions::default(),
             )
             .await?;
-        // todo return error if empty
-        message_builder = message_builder.with_input(outputs[0].clone());
+        if outputs.is_empty() {
+            return Err(crate::error::Error::UtxoInputNotFound);
+        }
+        let mut output_index = 0;
+        for (index, output) in outputs.iter().enumerate() {
+            let output_data = client.get_output(&output).await?;
+            let (amount, _, _) =
+                ClientMessageBuilder::get_output_amount_and_address(&output_data.output)?;
+            if amount == IOTA_AMOUNT {
+                output_index = index;
+            }
+        }
+        message_builder = message_builder.with_input(outputs[output_index].clone());
     }
 
     if let Some(inputs) = inputs {
-        println!("Inputs: {:?}", inputs);
         for input in inputs {
             message_builder = message_builder.with_input(UtxoInput::from(input));
         }
     }
     let message = message_builder.finish().await?;
-
     Ok(message)
 }
 
@@ -90,15 +94,15 @@ pub async fn split_funds(client: &Client, rows: u64, seed: &str) -> Result<Messa
         .finish()
         .await?;
 
-    while client.get_balance(&seed).finish().await? < rows * 1_000_000 {
-        println!("Send {}i to {}", rows * 1_000_000, addresses_from_seed[0]);
+    while client.get_balance(&seed).finish().await? < rows * IOTA_AMOUNT {
+        println!("Send {}i to {}", rows * IOTA_AMOUNT, addresses_from_seed[0]);
         sleep(std::time::Duration::from_secs(10)).await;
     }
 
     let mut message_builder = client.message().with_seed(&seed);
     for i in 0..rows {
         message_builder =
-            message_builder.with_output(&addresses_from_seed[i as usize], 1_000_000)?;
+            message_builder.with_output(&addresses_from_seed[i as usize], IOTA_AMOUNT)?;
     }
     let message = message_builder.with_index("Chronist").finish().await?;
 

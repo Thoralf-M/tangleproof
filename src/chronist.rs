@@ -1,19 +1,11 @@
-use crate::error::Result;
-use crate::iota_api::send_transaction;
-use crate::storage::RocksdbStorage;
+use crate::{error::Result, iota_api::send_transaction, storage::RocksdbStorage};
 use chrono::{DateTime, Utc};
-use iota_client::bee_message::address::Address;
-use iota_client::bee_message::output::Output;
-use iota_client::bee_message::output::OutputId;
-use iota_client::bee_message::prelude::{Essence, Message, Payload};
-use iota_client::bee_message::MessageId;
-use iota_client::Client;
-use iota_client::Seed;
+use iota_client::bee_message::prelude::{
+    Address, Essence, Message, MessageId, Output, OutputId, Payload,
+};
+use iota_client::{Client, Seed};
 use serde::{Deserialize, Serialize};
-use std::collections::HashSet;
-use std::str::FromStr;
-use std::sync::Arc;
-
+use std::{collections::HashSet, str::FromStr, sync::Arc};
 use tokio::{
     sync::{Mutex, RwLock},
     time::sleep,
@@ -21,15 +13,16 @@ use tokio::{
 
 const MESSAGE_IDS_KEY: &str = "message_ids";
 const TRANSACTION_INDEX_KEY: &str = "transaction_index";
+pub(crate) const TRANSACTION_MESSAGE_KEY: &str = "transaction_message";
 const CHRONIST_INDEX: &str = "Chronist";
-const INCLUSION_INDEX: &str = "inclusion_index";
+pub(crate) const INCLUSION_INDEX: &str = "inclusion_index";
 
 pub(crate) const INCLUSION_STRUCTURE_ROWS: u64 = 10;
 pub(crate) const INCLUSION_STRUCTURE_SECTION_LENGTH: u64 = 3;
 
 pub struct Chronist {
     pub(crate) db: Arc<Mutex<RocksdbStorage>>,
-    pub iota_client: Arc<RwLock<Client>>,
+    pub iota_client: Arc<Client>,
     pub(crate) message_ids: Arc<RwLock<HashSet<MessageId>>>,
     pub(crate) pending_message_ids: Arc<RwLock<HashSet<MessageId>>>,
     seed: String,
@@ -57,16 +50,13 @@ pub struct UtxoData {
 impl Chronist {
     pub async fn new(path: &str, node_url: &str, seed: &str) -> Result<Self> {
         let db = Arc::new(Mutex::new(RocksdbStorage::new(path)?));
-        let iota_client = Arc::new(RwLock::new(
-            Client::builder().with_node(node_url)?.finish().await?,
-        ));
+        let iota_client = Arc::new(Client::builder().with_node(node_url)?.finish().await?);
 
         // init transaction index
         let db_ = db.clone();
         let mut database = db_.lock().await;
         if database.get(TRANSACTION_INDEX_KEY).await.is_err() {
-            let client = iota_client.read().await;
-            crate::iota_api::split_funds(&client, INCLUSION_STRUCTURE_ROWS, seed).await?;
+            crate::iota_api::split_funds(&iota_client, INCLUSION_STRUCTURE_ROWS, seed).await?;
             database.set(TRANSACTION_INDEX_KEY, "1".to_string()).await?;
             database.set(MESSAGE_IDS_KEY, "[]".to_string()).await?;
         }
@@ -103,28 +93,50 @@ impl Chronist {
                 .unwrap();
             runtime.block_on(async {
                 loop {
-                    if !pending_message_ids.read().await.is_empty() {
-                        let message_ids: Vec<MessageId> = pending_message_ids
+                    let latest_transaction_index = {
+                        let db = self.db.lock().await;
+                        u64::from_str(
+                            &db.get(TRANSACTION_INDEX_KEY)
+                                .await
+                                .expect("Couldn't get transaction index"),
+                        )
+                        .expect("Couldn't convert transaction index")
+                    };
+                    let row = crate::inclusion_structure::get_row_for_position(
+                        latest_transaction_index,
+                        INCLUSION_STRUCTURE_ROWS,
+                        INCLUSION_STRUCTURE_SECTION_LENGTH,
+                    );
+                    // Only include messages in row 0
+                    let message_ids: Vec<MessageId> = if row == 0 {
+                        if pending_message_ids.read().await.is_empty() {
+                            sleep(std::time::Duration::from_secs(10)).await;
+                            continue;
+                        }
+                        pending_message_ids
                             .read()
                             .await
                             .clone()
                             .iter()
-                            // Up to 100 message ids per transaction to stay below 10000 bytes length for
-                            // faster PoW https://gist.github.com/Wollac/82d211781535ad95d39c7db7ae093204
+                            // Up to 100 message ids per transaction to stay below 10000 bytes length for faster PoW
+                            // even with 10 in and outputs https://gist.github.com/Wollac/82d211781535ad95d39c7db7ae093204
                             .take(100)
                             .cloned()
-                            .collect();
-                        match self.send_transaction(message_ids.clone()).await {
-                            Ok(r) => {
-                                println!("Transaction sent {}", r);
-                                // remove message ids that got sent
-                                let mut pending_message_ids = pending_message_ids.write().await;
-                                for message_id in message_ids {
-                                    pending_message_ids.remove(&message_id);
-                                }
+                            .collect()
+                    } else {
+                        vec![]
+                    };
+
+                    match self.send_transaction(message_ids.clone()).await {
+                        Ok(r) => {
+                            println!("Transaction {} sent {}", latest_transaction_index, r);
+                            // remove message ids that got sent
+                            let mut pending_message_ids = pending_message_ids.write().await;
+                            for message_id in message_ids {
+                                pending_message_ids.remove(&message_id);
                             }
-                            Err(e) => println!("{}", e),
                         }
+                        Err(e) => println!("{}", e),
                     }
                     sleep(std::time::Duration::from_secs(10)).await;
                 }
@@ -132,6 +144,10 @@ impl Chronist {
         });
     }
     async fn send_transaction(&self, message_ids: Vec<MessageId>) -> Result<MessageId> {
+        println!("send_transaction start");
+        // lock sending_transaction so no conflicts are generated
+        self.sending_transacion.lock().await;
+
         let mut latest_transaction_index = {
             let db = self.db.lock().await;
             u64::from_str(&db.get(TRANSACTION_INDEX_KEY).await?)?
@@ -141,10 +157,6 @@ impl Chronist {
             time: Utc::now(),
             message_ids,
         };
-        // lock sending_transaction so no conflicts are generated
-        self.sending_transacion.lock().await;
-        // Store new data to database
-        let database = self.db.lock().await;
 
         // get inputs
         let input_indexes =
@@ -154,8 +166,8 @@ impl Chronist {
                 INCLUSION_STRUCTURE_SECTION_LENGTH,
             );
 
-        let client = self.iota_client.read().await;
-        let addresses: Vec<Address> = client
+        let iota_client = self.iota_client.clone();
+        let addresses: Vec<Address> = iota_client
             .get_addresses(&Seed::from_bytes(&hex::decode(&self.seed)?))
             .with_range(0..crate::chronist::INCLUSION_STRUCTURE_ROWS as usize)
             .get_all_raw()
@@ -164,16 +176,24 @@ impl Chronist {
             .filter(|a| !a.1)
             .map(|a| a.0)
             .collect();
+
         let mut inputs = Vec::new();
-        println!("input_indexes {:?}", input_indexes);
         for input in input_indexes {
+            let database = self.db.lock().await;
             let position_data: UtxoData = serde_json::from_str(
                 &database
                     .get(&format!("{}{}", INCLUSION_INDEX, input.0))
                     .await?,
             )?;
-            let message: Message =
-                serde_json::from_str(&database.get(&position_data.message_id.to_string()).await?)?;
+            let message: Message = serde_json::from_str(
+                &database
+                    .get(&format!(
+                        "{}{}",
+                        TRANSACTION_MESSAGE_KEY,
+                        position_data.message_id.to_string()
+                    ))
+                    .await?,
+            )?;
 
             if let Some(Payload::Transaction(tx)) = message.payload() {
                 let Essence::Regular(essence) = tx.essence();
@@ -199,20 +219,15 @@ impl Chronist {
                         addresses[input.1 as usize] == address
                     })
                     .expect("No output with address");
-                println!(
-                    "input address {}",
-                    addresses[input.1 as usize].to_bech32("atoi")
-                );
                 inputs.push(OutputId::new(tx.id(), output_position as u16)?);
             } else {
                 return Err(crate::error::Error::UtxoInputNotFound);
             }
         }
-        drop(database);
 
         // Send new transaction with message
         let transaction_message = send_transaction(
-            &client,
+            &iota_client,
             CHRONIST_INDEX,
             &serde_json::to_string(&inclusion_data)?,
             Some(inputs),
@@ -238,7 +253,11 @@ impl Chronist {
         // store new transaction_message
         database
             .set(
-                &transaction_message.id().0.to_string(),
+                &format!(
+                    "{}{}",
+                    TRANSACTION_MESSAGE_KEY,
+                    transaction_message.id().0.to_string()
+                ),
                 serde_json::to_string(&transaction_message)?,
             )
             .await?;
@@ -270,7 +289,7 @@ impl Chronist {
             .set(TRANSACTION_INDEX_KEY, latest_transaction_index.to_string())
             .await?;
 
-        let _ = client
+        let _ = iota_client
             .retry_until_included(&transaction_message.id().0, None, None)
             .await?;
         Ok(transaction_message.id().0)
@@ -278,19 +297,15 @@ impl Chronist {
 
     pub async fn save_message(&self, message_id: &str) -> Result<()> {
         let msg_id = MessageId::from_str(message_id)?;
-        if self.message_ids.read().await.contains(&msg_id)
-            || self.pending_message_ids.read().await.contains(&msg_id)
         {
-            println!("Message {} already stored or pending", msg_id);
-            return Ok(());
+            if self.message_ids.read().await.contains(&msg_id)
+                || self.pending_message_ids.read().await.contains(&msg_id)
+            {
+                println!("Message {} already stored or pending", msg_id);
+                return Ok(());
+            }
         }
-        let message = self
-            .iota_client
-            .read()
-            .await
-            .get_message()
-            .data(&msg_id)
-            .await?;
+        let message = self.iota_client.get_message().data(&msg_id).await?;
 
         // store new message
         let mut database = self.db.lock().await;
@@ -337,33 +352,71 @@ impl Chronist {
                     .await?,
             )?;
 
-            let position_message: Message =
-                serde_json::from_str(&database.get(&position_data.message_id.to_string()).await?)?;
-
-            path_transactions.push(position_message);
+            let position_message: Message = serde_json::from_str(
+                &database
+                    .get(&format!(
+                        "{}{}",
+                        TRANSACTION_MESSAGE_KEY,
+                        position_data.message_id.to_string(),
+                    ))
+                    .await?,
+            )?;
+            let path_tx = match position_message.payload() {
+                Some(Payload::Transaction(tx)) => tx,
+                _ => return Err(crate::error::Error::NoTransactionPayload),
+            };
+            path_transactions.push(*path_tx.clone());
         }
+        drop(database);
+        let latest_output_id = {
+            let tx = path_transactions
+                .last()
+                .expect("No transactions for proof available ");
+            let Essence::Regular(essence) = tx.essence();
+            let addresses: Vec<Address> = self
+                .iota_client
+                .get_addresses(&Seed::from_bytes(&hex::decode(&self.seed)?))
+                .with_range(0..crate::chronist::INCLUSION_STRUCTURE_ROWS as usize)
+                .get_all_raw()
+                .await?
+                .into_iter()
+                .filter(|a| !a.1)
+                .map(|a| a.0)
+                .collect();
+            // Get output id from with highest address/row index because they will stay valid the longest time
+            let output_position = essence
+                .outputs()
+                .iter()
+                .position(|output| {
+                    let address = match output {
+                        Output::Treasury(_) => {
+                            panic!("Treasury output is not supported");
+                        }
+                        Output::SignatureLockedSingle(ref r) => match &r.address() {
+                            Address::Ed25519(addr) => Address::Ed25519(*addr),
+                        },
+                        Output::SignatureLockedDustAllowance(ref r) => match &r.address() {
+                            Address::Ed25519(addr) => Address::Ed25519(*addr),
+                        },
+                    };
+                    addresses[essence.outputs().len() - 1] == address
+                })
+                .expect("No output with address");
+
+            OutputId::new(tx.id(), output_position as u16)?
+        };
 
         let inclusion_proof = crate::inclusion_proof::InclusionProof {
             // get output id with the highest index, because that will stay the longest time available
-            latest_output_id: {
-                if let Some(Payload::Transaction(tx)) = path_transactions
-                    .last()
-                    .expect("No transactions for proof available ")
-                    .payload()
-                {
-                    let Essence::Regular(essence) = tx.essence();
-                    OutputId::new(tx.id(), essence.outputs().len() as u16 - 1)?
-                } else {
-                    return Err(crate::error::Error::UtxoOutputNotFound);
-                }
-            },
+            latest_output_id,
             message: message_wrapper.message,
-            transaction_messages: path_transactions,
+            transactions: path_transactions,
         };
 
-        let client = self.iota_client.read().await;
-        println!("Is valid: {}", inclusion_proof.is_valid(&client).await?);
-
+        println!(
+            "Is valid: {}",
+            inclusion_proof.is_valid(&self.iota_client).await?
+        );
         Ok(inclusion_proof)
     }
 
