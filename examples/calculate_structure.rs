@@ -27,7 +27,7 @@ fn main() {
         );
     }
     println!(
-        "Longest proof path (without more than section length txs before a new row starts): {}",
+        "Longest proof path (if all txs got sent without more than section length txs before a new row starts): {}",
         (rows + 1) * section_length
     );
     println!(

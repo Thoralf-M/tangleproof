@@ -24,7 +24,7 @@ The path for a message in transaction 10 would consist of the yellow transaction
 
 ![inclusion_structure_selection](./inclusion_structure_selection.svg)
 
-Longest proof path `(rows + 1) * section_length` (without more than section length txs before a new row starts):
+Longest proof path `(rows + 1) * section_length` (if all txs got sent without more than section length txs before a new row starts):
 
 ![inclusion_structure_selection](./inclusion_structure_longest_path.svg)
 
