@@ -289,6 +289,7 @@ impl Chronist {
             .set(TRANSACTION_INDEX_KEY, latest_transaction_index.to_string())
             .await?;
 
+        drop(database);
         let _ = iota_client
             .retry_until_included(&transaction_message.id().0, None, None)
             .await?;
@@ -373,6 +374,7 @@ impl Chronist {
                 .last()
                 .expect("No transactions for proof available ");
             let Essence::Regular(essence) = tx.essence();
+
             let addresses: Vec<Address> = self
                 .iota_client
                 .get_addresses(&Seed::from_bytes(&hex::decode(&self.seed)?))

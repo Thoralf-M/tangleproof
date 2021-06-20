@@ -84,7 +84,7 @@ pub async fn proof_creation_handler(
     message_id: String,
     chronist: Arc<RwLock<Chronist>>,
 ) -> std::result::Result<impl Reply, Rejection> {
-    let chronist = chronist.write().await;
+    let chronist = chronist.read().await;
     chronist.save_message(&message_id).await?;
     println!("proof_creation_handler message_id: {}", message_id);
     Ok(warp::reply::json(&MessageIdResponse { message_id }))
