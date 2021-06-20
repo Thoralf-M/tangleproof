@@ -107,7 +107,7 @@ impl Chronist {
                         INCLUSION_STRUCTURE_ROWS,
                         INCLUSION_STRUCTURE_SECTION_LENGTH,
                     );
-                    // Only include messages in row 0
+                    // Only include messages in row 0 so the proofs don't get very big
                     let message_ids: Vec<MessageId> = if row == 0 {
                         if pending_message_ids.read().await.is_empty() {
                             sleep(std::time::Duration::from_secs(10)).await;
@@ -144,7 +144,6 @@ impl Chronist {
         });
     }
     async fn send_transaction(&self, message_ids: Vec<MessageId>) -> Result<MessageId> {
-        println!("send_transaction start");
         // lock sending_transaction so no conflicts are generated
         self.sending_transacion.lock().await;
 

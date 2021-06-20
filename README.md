@@ -14,8 +14,8 @@ Run example with `cargo run --release`
 
 The first time it runs you need to send 10 Mi to the first address, you can get testnet iotas from https://faucet.testnet.chrysalis2.com/.
 
-For a proof to be valid one output of a transaction always needs to be used as input in the next transaction and the latest output needs to be known by a node.
-The output is not be available before the transaction is confirmed, so it can take a few seconds before a new proof is valid and if new proof transactions are created a new proof has to be requested after a while because the outputs for an older proof will be spent and forgotten.
+For a proof to be valid one output of a transaction always needs to be used as input in the next transaction and the latest output needs to be known by a node. No other transaction could have created this output, because the hash would be different then, therefore it needs to be valid.
+The output is not available before the transaction is confirmed, so it can take a few seconds before a new proof is valid and if new proof transactions are created a new proof has to be requested after a while because the outputs for an older proof will be spent and forgotten.
 
 If the createion of a proof for a message is requested the message will be requested from the node and stored locally in the db. The message id will then be included in an indexation payload in one transaction of the structure below.
 ![inclusion_structure](./inclusion_structure.svg)
