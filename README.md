@@ -34,7 +34,7 @@ To test it you could call `http://localhost:3030/proof/create/ab81d15810ab56ea07
 For a proof to be valid one output of a transaction always needs to be used as input in the next transaction and the latest output needs to be known by a node. No other transaction could have created this output, because the hash would be different then, therefore it needs to be valid.
 The output is not available before the transaction is confirmed, so it can take a few seconds before a new proof is valid and if new proof transactions are created a new proof has to be requested after a while because the outputs for an older proof will be spent and forgotten.
 
-If the createion of a proof for a message is requested the message will be requested from the node and stored locally in the db. The message id will then be included in an indexation payload in one transaction of the structure below.
+If the creation of a proof for a message is requested the message will be requested from the node and stored locally in the db. The message id will then be included in an indexation payload in one transaction of the structure below.
 ![inclusion_structure](./inclusion_structure.svg)
 
 The path for a message in transaction 10 would consist of the yellow transactions:
