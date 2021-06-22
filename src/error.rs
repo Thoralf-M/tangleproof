@@ -37,8 +37,6 @@ pub enum Error {
     NoIndexationPayload,
     #[error("Message id is not in the transaction")]
     MessageIdNotInTransaction,
-    #[error("File has no valid proof")]
-    InvalidProofFile,
     #[error("Record not found in db")]
     RecordNotFound,
     #[error("Utxo input not found in message")]

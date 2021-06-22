@@ -16,7 +16,7 @@ pub async fn start(chronist: Chronist, port: u16) -> Result<()> {
     let chronist = Arc::new(RwLock::new(chronist));
     // GET /
     let api_endpoints = warp::any().map(|| {
-        "Available endpoints:\nGET /proof/create/:messageId\nGET /proof/create/:messageId\nPOST /proof/is-valid/\nGET /messages/list\nGET /messages/:messageId\nGET /messages/position/:index"
+        "Available endpoints:\nGET /proof/create/:messageId\nGET /proof/get/:messageId\nPOST /proof/is-valid/\nGET /messages/list\nGET /messages/:messageId\nGET /messages/position/:index"
     });
 
     // GET /proof/create/:messageId
