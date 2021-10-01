@@ -3,7 +3,7 @@ use tangleproof::chronist::Chronist;
 async fn db() {
     let chronist = Chronist::new(
         "testdb",
-        "https://api.lb-0.testnet.chrysalis2.com",
+        "https://api.lb-0.h.chrysalis-devnet.iota.cafe/",
         "256a818b2aac458941f7274985a410e57fb750f3a3a67969ece5bd9ae7eef5b2",
     )
     .await

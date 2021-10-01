@@ -27,7 +27,7 @@ async fn main() -> Result<()> {
         server::start(chronist, 3030).await.unwrap();
     });
     let mut iota = Client::builder()
-        .with_node("https://api.hornet-0.testnet.chrysalis2.com/")
+        .with_node("https://api.lb-0.h.chrysalis-devnet.iota.cafe/")
         .unwrap()
         .finish()
         .await

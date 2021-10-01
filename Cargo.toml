@@ -7,7 +7,7 @@ edition = "2018"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-iota-client = {git = "https://github.com/iotaledger/iota.rs", rev = "ae253938ab6725a59da05ce97d0f2c9054f38706", features = ["mqtt"] }
+iota-client = {git = "https://github.com/iotaledger/iota.rs", rev = "a9351b4eaa2db56f651fb4a45cf7c0afa3f74c5b", features = ["mqtt"] }
 # iota-client = { path = "../iota.rs/iota-client"}
 hex = "0.4"
 serde = { version = "1.0", features = ["derive"] }
