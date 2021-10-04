@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>tangleproof</title>
+  <script src="index.js"></script>
+  <script src="lib.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Oxygen+Mono&display=swap" rel="stylesheet">
+  <style>
+    html {
+      background: rgb(255, 255, 255);
+      font-size: 16px;
+    }
+
+    body {
+      font-family: 'Oxygen Mono', monospace;
+    }
+
+    input[type="text"] {
+      margin: 10px;
+      font-family: 'Oxygen Mono', monospace;
+      font-size: 16px;
+    }
+
+    select {
+      font-size: 16px;
+    }
+
+    pre {
+      margin: 0;
+      font-size: 16px;
+    }
+
+    button {
+      font-size: 1.8rem !important;
+    }
+
+    .button {
+      margin: 0.5rem;
+      color: white;
+      padding-left: 3rem;
+      padding-right: 3rem;
+      padding-top: 1.5rem;
+      padding-bottom: 1.5rem;
+      border-radius: 6px;
+      border: none;
+      transition: .25s;
+      box-shadow: 0 0 1rem#000;
+      outline: 0;
+      font-size: 1.8rem;
+    }
+
+    .button:hover {
+      transform: translateY(1px);
+    }
+  </style>
+</head>
+
+<body>
+  <br>
+  <input type="text" id="node" placeholder="IOTA node url" value="https://api.lb-0.h.chrysalis-devnet.iota.cafe/"
+    size="100">
+  <br>
+  <textarea type="input" id="inclusionProof" placeholder="Inclusion proof" value="" rows="25" cols="170"></textarea>
+  <br>
+
+  <input type="button" value="Validate inclusion proof" onclick="validate_inclusion_proof()">
+
+  <span id="result"></span>
+</body>
+
+</html>

@@ -1,0 +1,28 @@
+[workspace]
+
+[package]
+name = "tangleproof-validation"
+version = "0.1.0"
+authors = ["Thoralf-M"]
+edition = "2018"
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+iota-client = {git = "https://github.com/iotaledger/iota.rs", rev = "a9351b4eaa2db56f651fb4a45cf7c0afa3f74c5b", features = ["wasm"], default-features = false }
+wasm-bindgen = { version = "0.2", features = ["serde-serialize"] }
+console_error_panic_hook = "0.1.6"
+js-sys = "0.3.39"
+hex = "0.4"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+wasm-bindgen-futures = { version = "0.4", default-features = false }
+thiserror = "1.0"
+anyhow = "1.0"
+
+[target.'cfg(target_arch = "wasm32")'.dependencies]
+chrono = { version = "0.4", features = ["serde", "wasmbind"] }
+
+[package.metadata.wasm-pack.profile.release]
+wasm-opt = false
