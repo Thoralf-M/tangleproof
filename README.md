@@ -1,3 +1,6 @@
+Update: There are now better ways to do this with Stardust: https://github.com/iotaledger/inx-poi or by using the metadata features for outputs which allow a user to store any data in the ledger state
+
+
 # Tangleproof
 
 Library to send transactions and create a proof object for them which can be used at any later time to prove that a transaction exists in the Tangle (also called proof of inclusion).
